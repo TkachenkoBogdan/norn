@@ -9,7 +9,7 @@
 <meta property="og:description" content="Your claude.ai usage, in the menu bar.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://tkachenkobogdan.github.io/claude-spend-bar/">
-<link rel="icon" href="icon-128.png?v=1.7.0" sizes="128x128">
+<link rel="icon" href="icon-128.png?v=2.0.0" sizes="128x128">
 <style>
   :root {
     --clay: #D97757;
@@ -195,7 +195,7 @@
 <header>
   <!-- The app's real icon, as the binary renders it into the bundle's iconset
        (scripts/make-icon.sh). Not a recreation, and it does not move. -->
-  <img class="mark" src="icon@2x.png?v=1.7.0" width="512" height="512"
+  <img class="mark" src="icon@2x.png?v=2.0.0" width="512" height="512"
        alt="Claude Spend Bar" fetchpriority="high">
 
   <h1>Claude Spend Bar</h1>
@@ -264,7 +264,7 @@
     </a>
     <a class="btn btn-ghost" href="#homebrew">Install with Homebrew</a>
   </p>
-  <p class="meta">Version 1.7.0 · macOS 14 or later · Apple Silicon · free</p>
+  <p class="meta">Version 2.0.0 · macOS 14 or later · Apple Silicon · free</p>
 </header>
 
 <section class="reveal" id="look">
@@ -274,7 +274,7 @@
   <div class="shots">
     <div class="shot">
       <figure>
-        <img src="popover@2x.png?v=1.7.0" width="680" height="1034" loading="lazy"
+        <img src="popover@2x.png?v=2.0.0" width="680" height="1034" loading="lazy"
              alt="The panel on a subscription: an organisation picker, then Session 54%,
                   Weekly 28% and Weekly Fable 30%, each with a meter and a reset time,
                   then the Sessions list at API value.">
@@ -285,7 +285,7 @@
     </div>
     <div class="shot">
       <figure>
-        <img src="ledger@2x.png?v=1.7.0" width="680" height="1362" loading="lazy"
+        <img src="ledger@2x.png?v=2.0.0" width="680" height="1362" loading="lazy"
              alt="The panel on a spend limit: $189.42 of $300, $110.58 left this cycle,
                   63% used, a tape of the five most recent charges, and the Sessions list.">
         <figcaption><b>On a spend limit.</b> What you have run up this cycle, what
@@ -302,7 +302,7 @@
   <div class="sessions">
     <div class="shot">
       <figure>
-        <img src="sessions@2x.png?v=1.7.0" width="680" height="1164" loading="lazy"
+        <img src="sessions@2x.png?v=2.0.0" width="680" height="1164" loading="lazy"
              alt="The Sessions list with Desktop off, sorted by cost: two terminal sessions,
                   two headless runs, a CLI total, and the part of the bill no session explains.">
         <figcaption><b>Desktop off, sorted by cost.</b> The total follows the
@@ -329,7 +329,7 @@
   <div class="sessions">
     <div class="shot">
       <figure>
-        <img src="menubar@2x.png?v=1.7.0" width="680" height="482" loading="lazy"
+        <img src="menubar@2x.png?v=2.0.0" width="680" height="482" loading="lazy"
              alt="The Menu bar settings screen: Full $189.42 / $300 (today's look, 113 pt),
                   Compact $189 / 300 (85 pt), Minimal $189 (51 pt) and Mark, the mark alone (16 pt).">
         <figcaption><b>Four styles, measured.</b> Each row shows your own reading in
@@ -405,22 +405,24 @@
 
 <section class="reveal">
   <h2>Connecting your Claude account</h2>
-  <p class="lede">The app reads your usage as you — which means it needs the session
-     key your browser already holds. It is kept in your Mac's Keychain and sent to
-     claude.ai and nowhere else.</p>
+  <p class="lede">The app reads your usage through <b>your own Claude Code</b>, which
+     already knows your plan and limits. It never asks for, stores or sends a login.</p>
+  <div class="shot" style="max-width:340px;margin:0 auto 22px">
+    <figure>
+      <img src="connect@2x.png?v=2.0.0" width="680" height="706" loading="lazy"
+           alt="The Connect screen: Spend Bar runs your claude to ask for usage, found two
+                accounts, never reads, stores or sends a login, and never talks to claude.ai.">
+    </figure>
+  </div>
   <ol>
-    <li>Click the triangle in the menu bar, then <b>Set session key</b>.</li>
-    <li>Open <b>claude.ai</b> in Safari, and sign in if you are not already.</li>
-    <li>Press <code>⌥⌘I</code> to open the Web Inspector, then select the
-        <b>Network</b> tab.</li>
-    <li>Go to <b>Settings → Usage</b>.</li>
-    <li>Type <code>usage</code> in the filter box, then click one of the usage requests.</li>
-    <li>Open <b>Headers</b>, find the <code>Cookie</code> row, and copy the whole value.</li>
-    <li>Paste it into the app and press <b>Connect</b>. It finds the key inside and
-        stores only that.</li>
+    <li>Install the <a href="https://code.claude.com/docs/en/setup">Claude Code CLI</a>,
+        or the <a href="https://claude.ai/download">Claude app</a>, which carries its own copy.</li>
+    <li>Sign in to Claude Code once, in Terminal: <code>claude auth login</code>.</li>
+    <li>Click the triangle in the menu bar and press <b>Connect</b>.</li>
   </ol>
-  <p class="note">If the Web Inspector is missing in Safari, turn on
-     <b>Show features for web developers</b> in Safari ▸ Settings ▸ Advanced.</p>
+  <p class="note">Not signed in yet? The panel shows the exact command, and
+     <b>Open Terminal</b> types it for you to run. Coming from 1.x: your old session
+     key is deleted from the Keychain on first launch.</p>
 </section>
 
 <section class="reveal">
@@ -431,18 +433,17 @@
         <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
         <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
       </svg>
-      Unofficial, and built on an internal API
+      Unofficial, and built on undocumented output
     </h2>
     <p>This app is not made by, endorsed by, or affiliated with Anthropic. It reads
-       the same <strong>internal claude.ai endpoints your browser uses</strong> when
-       you look at your own usage page. Those endpoints are not a published API:
-       they carry no compatibility promise and can change or disappear at any time,
-       without notice.</p>
+       the usage report <strong>Claude Code's <code>/usage</code> command</strong> prints.
+       That output is not a published API: it carries no compatibility promise and can
+       change or disappear in any Claude Code release, without notice.</p>
     <p>When that happens the app stops showing a reading until it is updated. Treat
        the numbers as a convenience, <strong>not as a billing record</strong> — the
        usage page in claude.ai remains the authority.</p>
-    <p>It reads only your own account, sends your session key to claude.ai and
-       nowhere else, and never writes anything back.</p>
+    <p>It reads only your own accounts, through the <code>claude</code> you installed,
+       never holds a login, and never writes anything back.</p>
   </div>
 </section>
 
