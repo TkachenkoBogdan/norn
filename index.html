@@ -3,23 +3,29 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Claude Spend Bar</title>
-<meta name="description" content="A macOS menu-bar readout of your claude.ai usage.">
-<meta property="og:title" content="Claude Spend Bar">
+<title>Norn</title>
+<meta name="description" content="Norn: a macOS menu-bar readout of your Claude usage.">
+<meta property="og:title" content="Norn">
 <meta property="og:description" content="Your claude.ai usage, in the menu bar.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://tkachenkobogdan.github.io/claude-spend-bar/">
-<link rel="icon" href="icon-128.png?v=2.0.3" sizes="128x128">
+<link rel="icon" href="icon-128.png?v=3.0.0" sizes="128x128">
 <style>
   :root {
-    --clay: #D97757;
-    --wall: #0D1018;
-    --wall-top: #2A2E3B;
+    /* Onyx: the ball's shell, lit by its magenta. Clay is the die's alone and
+       teal marks status only, so neither appears here as an accent. */
+    --wall: #08080B;
+    --wall-top: #26262D;
+    --onyx: #141418;
+    --magenta: #EC4896;
+    --rim: rgba(226,80,146,.6);
+    --aura: rgba(168,22,88,.85);
     --ink: #F2F4F7;
     --ink-2: rgba(242,244,247,.62);
     --ink-3: rgba(242,244,247,.38);
     --line: rgba(255,255,255,.10);
-    --control: rgba(255,255,255,.07);
+    --control: #1A1A20;
+    --control-hover: #26262D;
     --control-edge: rgba(255,255,255,.08);
     --live: #3ED6B7;
     --warn: #E8B860;
@@ -30,7 +36,9 @@
   html { scroll-behavior: smooth; }
   body {
     margin: 0; font-family: var(--font); color: var(--ink);
-    background: radial-gradient(1200px 600px at 50% -10%, var(--wall-top), var(--wall)) fixed;
+    background:
+      radial-gradient(900px 420px at 50% 112%, rgba(236,72,150,.10), rgba(236,72,150,0) 70%) fixed,
+      radial-gradient(1200px 600px at 50% -10%, var(--wall-top), var(--wall)) fixed;
     -webkit-font-smoothing: antialiased; line-height: 1.55;
   }
   .wrap { max-width: 760px; margin: 0 auto; padding: 0 16px 80px; }
@@ -72,6 +80,10 @@
   /* our own status item: the mark, then the reading */
   .menubar .ours { display: flex; align-items: center; gap: 4px; font-variant-numeric: tabular-nums; }
   .menubar .ours svg { display: block; }
+  /* The menu-bar mark: the app's own frames (mark-working@2x.png, one 24 pt
+     slot per frame, rendered by BallMark + BallMotion), not a redrawing. */
+  .menubar .barmark { width: 24px; height: 24px; margin: -5px -4px -5px 0; flex: none;
+    background: url(mark-working@2x.png?v=3.0.0) 0 0 / 3312px 24px no-repeat; }
   .menubar .clock { font-variant-numeric: tabular-nums; }
   /* the desktop below the bar, just enough to read as a screen */
   .screen .desktop { height: 44px; }
@@ -86,16 +98,24 @@
   .btn {
     display: inline-flex; align-items: center; gap: 8px;
     text-decoration: none; font-weight: 600; font-size: 15px;
-    padding: 13px 26px; border-radius: 10px; border: 0; cursor: pointer;
-    font-family: inherit; transition: filter .15s ease, transform .15s ease;
+    padding: 13px 28px; border-radius: 999px; border: 0; cursor: pointer;
+    font-family: inherit; transition: background .15s ease, box-shadow .15s ease, transform .12s ease;
   }
-  .btn:hover { filter: brightness(1.06); transform: translateY(-1px); }
-  .btn:active { transform: translateY(0); }
-  .btn-primary { color: #0B2A24; background: var(--live); }
+  .btn:active { transform: scale(.95); }
+  /* The one primary action: the onyx pill, rimmed in magenta, glowing like
+     the ball's aura (Onyx.stylePrimary). */
+  .btn-primary {
+    color: var(--ink);
+    background: radial-gradient(120% 140% at 50% 0%, #26262D, var(--onyx) 60%);
+    box-shadow: inset 0 0 0 1px var(--rim), 0 0 18px var(--aura);
+  }
+  .btn-primary:hover { box-shadow: inset 0 0 0 1px var(--magenta), 0 0 24px var(--aura); }
+  /* Everything else is a plain piece of the shell. */
   .btn-ghost {
     color: var(--ink); background: var(--control);
     box-shadow: inset 0 0 0 1px var(--control-edge);
   }
+  .btn-ghost:hover { background: var(--control-hover); }
   .meta { color: var(--ink-3); font-size: 12.5px; margin-top: 14px; }
 
   /* ---- sections ---- */
@@ -108,7 +128,7 @@
     content: counter(step); position: absolute; left: 0; top: 1px;
     width: 22px; height: 22px; border-radius: 11px; background: var(--control);
     box-shadow: inset 0 0 0 1px var(--control-edge);
-    color: var(--clay); font-size: 12px; font-weight: 600;
+    color: var(--ink-2); font-size: 12px; font-weight: 600;
     display: grid; place-items: center;
   }
   ol li b { color: var(--ink); font-weight: 600; }
@@ -133,12 +153,15 @@
   /* The two panels are different heights, so the captions are pushed to a shared
      bottom edge rather than each hanging off its own image. */
   .shot { display: flex; }
-  .shot figure { margin: 0; display: flex; flex-direction: column; width: 100%; }
+  .shot figure { margin: 0; display: flex; flex-direction: column; width: 100%; container-type: inline-size; }
   .shot figcaption { margin-top: auto; }
   .shot img {
-    display: block; width: 100%; height: auto; border-radius: 12px;
-    border: 1px solid var(--control-edge);
-    box-shadow: 0 16px 38px rgba(0,0,0,.42);
+    /* The snapshot is the panel's content, rendered square; the real panel is
+       a 20 pt rounded shell with a magenta hairline. 20 pt of a 340 pt panel,
+       at whatever width the shot is shown. */
+    display: block; width: 100%; height: auto;
+    border-radius: 20px; border-radius: calc(100cqw * 20 / 340);
+    box-shadow: 0 0 0 1px rgba(226,80,146,.3), 0 16px 38px rgba(0,0,0,.42);
   }
   .shot figcaption { color: var(--ink-3); font-size: 12.5px; padding-top: 12px; }
   .shot figcaption b { color: var(--ink-2); font-weight: 600; }
@@ -162,7 +185,7 @@
     border-radius: 0 9px 9px 0; transition: color .15s ease, background .15s ease;
   }
   .copy button:hover { color: var(--ink); background: rgba(255,255,255,.11); }
-  .copy button.done { color: var(--live); }
+  .copy button.done { color: #F8B7D3; }
 
   /* ---- disclaimer ---- */
   .disclaimer {
@@ -195,10 +218,10 @@
 <header>
   <!-- The app's real icon, as the binary renders it into the bundle's iconset
        (scripts/make-icon.sh). Not a recreation, and it does not move. -->
-  <img class="mark" src="icon@2x.png?v=2.0.3" width="512" height="512"
-       alt="Claude Spend Bar" fetchpriority="high">
+  <img class="mark" src="icon@2x.png?v=3.0.0" width="512" height="512"
+       alt="Norn" fetchpriority="high">
 
-  <h1>Claude Spend Bar</h1>
+  <h1>Norn</h1>
   <p class="tag">Your claude.ai usage, in the menu bar. How much of your session
      and weekly limits you have left, without opening a browser tab.</p>
 
@@ -243,8 +266,7 @@
 
           <!-- this app. It sits here, just left of the clock. -->
           <span class="ours">
-            <svg id="barMark" width="17.6" height="14" viewBox="0 0 17.6 14"
-                 xmlns="http://www.w3.org/2000/svg"></svg>
+            <span id="barMark" class="barmark"></span>
             <span>38%</span>
           </span>
 
@@ -253,18 +275,18 @@
       </div>
       <div class="desktop"></div>
     </div>
-    <p class="barcap">That is the whole app: the clay triangle and a percentage, just
+    <p class="barcap">That is the whole app: the ball and a percentage, just
        left of the clock. <b>Click it for the rest.</b></p>
   </div>
 
   <p class="cta">
     <a class="btn btn-primary"
-       href="https://github.com/TkachenkoBogdan/homebrew-tap/releases/latest/download/ClaudeSpendBar.dmg">
+       href="https://github.com/TkachenkoBogdan/homebrew-tap/releases/latest/download/Norn.dmg">
       Download for Mac
     </a>
     <a class="btn btn-ghost" href="#homebrew">Install with Homebrew</a>
   </p>
-  <p class="meta">Version 2.0.3 · macOS 14 or later · Apple Silicon · free</p>
+  <p class="meta">Version 3.0.0 · macOS 14 or later · Apple Silicon · free</p>
 </header>
 
 <section class="reveal" id="look">
@@ -274,7 +296,7 @@
   <div class="shots">
     <div class="shot">
       <figure>
-        <img src="popover@2x.png?v=2.0.3" width="680" height="1034" loading="lazy"
+        <img src="popover@2x.png?v=3.0.0" width="680" height="1092" loading="lazy"
              alt="The panel on a subscription: an organisation picker, then Session 54%,
                   Weekly 28% and Weekly Fable 30%, each with a meter and a reset time,
                   then the Sessions list at API value.">
@@ -285,7 +307,7 @@
     </div>
     <div class="shot">
       <figure>
-        <img src="ledger@2x.png?v=2.0.3" width="680" height="1362" loading="lazy"
+        <img src="ledger@2x.png?v=3.0.0" width="680" height="1440" loading="lazy"
              alt="The panel on a spend limit: $189.42 of $300, $110.58 left this cycle,
                   63% used, a tape of the five most recent charges, and the Sessions list.">
         <figcaption><b>On a spend limit.</b> What you have run up this cycle, what
@@ -302,7 +324,7 @@
   <div class="sessions">
     <div class="shot">
       <figure>
-        <img src="sessions@2x.png?v=2.0.3" width="680" height="1164" loading="lazy"
+        <img src="sessions@2x.png?v=3.0.0" width="680" height="1212" loading="lazy"
              alt="The Sessions list with Desktop off, sorted by cost: two terminal sessions,
                   two headless runs, a CLI total, and the part of the bill no session explains.">
         <figcaption><b>Desktop off, sorted by cost.</b> The total follows the
@@ -329,7 +351,7 @@
   <div class="sessions">
     <div class="shot">
       <figure>
-        <img src="menubar@2x.png?v=2.0.3" width="680" height="482" loading="lazy"
+        <img src="menubar@2x.png?v=3.0.0" width="680" height="554" loading="lazy"
              alt="The Menu bar settings screen: Full $189.42 / $300 (today's look, 113 pt),
                   Compact $189 / 300 (85 pt), Minimal $189 (51 pt) and Mark, the mark alone (16 pt).">
         <figcaption><b>Four styles, measured.</b> Each row shows your own reading in
@@ -359,11 +381,11 @@
       <h3>Disk image</h3>
       <p class="for">No terminal needed.</p>
       <ol>
-        <li>Open the downloaded <b>ClaudeSpendBar.dmg</b>.</li>
-        <li>Drag <b>Claude Spend Bar</b> onto the <b>Applications</b> folder in
+        <li>Open the downloaded <b>Norn.dmg</b>.</li>
+        <li>Drag <b>Norn</b> onto the <b>Applications</b> folder in
             the same window.</li>
         <li>Open your <b>Applications</b> folder and double-click
-            <b>Claude Spend Bar</b>.</li>
+            <b>Norn</b>.</li>
       </ol>
       <p class="note">Nothing to download again — the app updates itself.</p>
     </div>
@@ -371,24 +393,24 @@
       <h3>Homebrew</h3>
       <p class="for">If you already use <code>brew</code>.</p>
       <div class="copy">
-        <pre><code id="cmd-install">brew install --cask tkachenkobogdan/tap/claude-spend-bar</code></pre>
+        <pre><code id="cmd-install">brew install --cask tkachenkobogdan/tap/norn</code></pre>
         <button type="button" data-copy="cmd-install">Copy</button>
       </div>
       <p class="note">On 1.4.3 or earlier? Upgrade once by hand; from 1.5.0 on it
          updates itself:</p>
       <div class="copy" style="margin-top:8px">
-        <pre><code id="cmd-upgrade">brew upgrade --cask claude-spend-bar</code></pre>
+        <pre><code id="cmd-upgrade">brew upgrade --cask norn</code></pre>
         <button type="button" data-copy="cmd-upgrade">Copy</button>
       </div>
       <p class="note" style="margin-top:14px">Homebrew installs it but does not
          start it. To open it the first time:</p>
       <ol style="margin-top:10px">
         <li>Open your <b>Applications</b> folder in Finder.</li>
-        <li>Double-click <b>Claude Spend Bar</b>.</li>
+        <li>Double-click <b>Norn</b>.</li>
       </ol>
       <p class="note">Or from the same terminal:</p>
       <div class="copy" style="margin-top:8px">
-        <pre><code id="cmd-open">open -a "Claude Spend Bar"</code></pre>
+        <pre><code id="cmd-open">open -a Norn</code></pre>
         <button type="button" data-copy="cmd-open">Copy</button>
       </div>
       <p class="note">Spotlight will not find it until macOS has indexed it, so
@@ -398,7 +420,7 @@
   </div>
 
   <p class="note" style="margin-top:18px">Nothing appears in the Dock — look for
-     the clay triangle in the menu bar, at the top right of your screen. The app
+     the ball in the menu bar, at the top right of your screen. The app
      adds itself to your login items the first time it runs, so it is there after
      a restart. You can turn that off in its settings.</p>
 </section>
@@ -409,8 +431,8 @@
      already knows your plan and limits. It never asks for, stores or sends a login.</p>
   <div class="shot" style="max-width:340px;margin:0 auto 22px">
     <figure>
-      <img src="connect@2x.png?v=2.0.3" width="680" height="706" loading="lazy"
-           alt="The Connect screen: Spend Bar runs your claude to ask for usage, found two
+      <img src="connect@2x.png?v=3.0.0" width="680" height="714" loading="lazy"
+           alt="The Connect screen: Norn runs your claude to ask for usage, found two
                 accounts, never reads, stores or sends a login, and never talks to claude.ai.">
     </figure>
   </div>
@@ -418,7 +440,7 @@
     <li>Install the <a href="https://code.claude.com/docs/en/setup">Claude Code CLI</a>,
         or the <a href="https://claude.ai/download">Claude app</a>, which carries its own copy.</li>
     <li>Sign in to Claude Code once, in Terminal: <code>claude auth login</code>.</li>
-    <li>Click the triangle in the menu bar and press <b>Connect</b>.</li>
+    <li>Click the ball in the menu bar and press <b>Connect</b>.</li>
   </ol>
   <p class="note">Not signed in yet? The panel shows the exact command, and
      <b>Open Terminal</b> types it for you to run. Coming from 1.x: your old session
@@ -494,110 +516,20 @@
     document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
   }
 
-  // The Trine, driven by a port of the app's own TrineMotion — same constants,
-  // same easing, same landing rule — so the page shows the motion the menu bar
-  // actually performs, at the size it actually draws.
+  // The menu-bar mark plays the app's own frames: mark-working@2x.png is
+  // BallMotion stepped at 30 fps and drawn by BallMark: frame 0 at rest, then
+  // a session starting, 3.2 s of work, and the die landing pointing down.
   (function () {
-    var CLAY = '#D97757';
-    var STROKE_RATIO = 0.32, GAP_RATIO = 0.24, CLOSED = 0.02;
-    var REST_OPENNESS = 0.57;                 // TrinePose.restOpenness
-    var DEG_PER_SEC = 360 / 1.15, OPEN_MS = 380, LAND_MS = 700;
-    var LANDING_STEP = 120, MIN_SWEEP = 90;
-
-    function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
-    function easeOutBack(t) {
-      var c1 = 1.70158, c3 = c1 + 1;
-      return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
-    }
-    function wrap(a) { a %= 360; return a < 0 ? a + 360 : a; }
-    function landingTarget(angle) {
-      var t = Math.ceil(angle / LANDING_STEP) * LANDING_STEP;
-      while (t - angle < MIN_SWEEP) t += LANDING_STEP;
-      return t;
-    }
-
-    var pose = { angle: 0, openness: REST_OPENNESS };
-    var phase = 'idle', started = 0, baseAngle = 0, baseOpen = REST_OPENNESS, target = null;
-
-    function begin(now) {
-      if (phase === 'opening' || phase === 'turning') return;
-      phase = 'opening'; started = now; baseAngle = pose.angle; baseOpen = pose.openness; target = null;
-    }
-    function end(now) {
-      if (phase === 'idle' || phase === 'landing') return;
-      phase = 'landing'; started = now; baseAngle = pose.angle; baseOpen = pose.openness;
-      target = landingTarget(pose.angle);
-    }
-    function advance(now) {
-      var elapsed;
-      if (phase === 'idle') return;
-      if (phase === 'opening') {
-        elapsed = Math.max(now - started, 0);
-        if (elapsed >= OPEN_MS) {
-          pose.angle = wrap(baseAngle + DEG_PER_SEC * OPEN_MS / 1000);
-          pose.openness = 1; phase = 'turning'; started += OPEN_MS;
-          baseAngle = pose.angle; baseOpen = 1;
-          return advance(now);
-        }
-        pose.angle = wrap(baseAngle + DEG_PER_SEC * elapsed / 1000);
-        pose.openness = baseOpen + (1 - baseOpen) * easeOutBack(elapsed / OPEN_MS);
-      } else if (phase === 'turning') {
-        pose.angle = wrap(baseAngle + DEG_PER_SEC * Math.max(now - started, 0) / 1000);
-        pose.openness = 1;
-      } else if (phase === 'landing') {
-        elapsed = Math.max(now - started, 0);
-        var p = Math.min(elapsed / LAND_MS, 1), e = easeOut(p);
-        pose.angle = wrap(baseAngle + (target - baseAngle) * e);
-        pose.openness = REST_OPENNESS + (baseOpen - REST_OPENNESS) * (1 - e);
-        if (p >= 1) {
-          pose = { angle: wrap(target), openness: REST_OPENNESS };
-          phase = 'idle'; target = null; baseAngle = pose.angle; baseOpen = REST_OPENNESS;
-        }
-      }
-    }
-
-    // TrineMark.draw, as SVG markup. y is negated: AppKit's space is y-up.
-    function marks(cx, cy, r) {
-      var pts = [0, 1, 2].map(function (i) {
-        var t = (90 - pose.angle - i * 120) * Math.PI / 180;
-        return [cx + r * Math.cos(t), cy - r * Math.sin(t)];
-      });
-      var lw = STROKE_RATIO * r * (1 + 0.5 * pose.openness);
-      if (pose.openness < CLOSED) {
-        return '<path d="M' + pts[0] + ' L' + pts[1] + ' L' + pts[2] + ' Z" fill="none" stroke="' +
-               CLAY + '" stroke-width="' + lw + '" stroke-linejoin="round" stroke-linecap="round"/>';
-      }
-      var gap = r * Math.sqrt(3) * GAP_RATIO * pose.openness;
-      return pts.map(function (a, i) {
-        var b = pts[(i + 1) % 3];
-        var dx = b[0] - a[0], dy = b[1] - a[1], len = Math.hypot(dx, dy);
-        var ux = dx / len, uy = dy / len;
-        return '<line x1="' + (a[0] + ux * gap / 2) + '" y1="' + (a[1] + uy * gap / 2) +
-               '" x2="' + (b[0] - ux * gap / 2) + '" y2="' + (b[1] - uy * gap / 2) +
-               '" stroke="' + CLAY + '" stroke-width="' + lw + '" stroke-linecap="round"/>';
-      }).join('');
-    }
-
-    var bar = document.getElementById('barMark');
-
-    // The only mark that moves on this page. The icon above is a still image, as
-    // an app icon should be; this is the menu bar's own slot — 15.6 wide plus a
-    // 2 pt gap, mark at r 6.5 — turning the way the real one does.
-    function paint() { bar.innerHTML = marks(7.8, 7, 6.5); }
-
-    if (reduce) { paint(); return; }           // still, at rest, and no frames
-
-    // A working session, then a pause — the rhythm the bar actually shows.
-    var WORK_MS = 2600, PAUSE_MS = 2200, nextAt = 0, working = false;
+    var mark = document.getElementById('barMark');
+    var FRAMES = 138, FPS = 30, PAUSE_MS = 2200, SLOT = 24;
+    function show(n) { mark.style.backgroundPosition = (-n * SLOT) + 'px 0'; }
+    show(0);
+    if (reduce) return;                        // at rest, and no frames
+    var cycle = PAUSE_MS + (FRAMES - 1) * 1000 / FPS, start = 0;
     function frame(now) {
-      if (!nextAt) nextAt = now + PAUSE_MS;
-      if (now >= nextAt) {
-        working = !working;
-        if (working) { begin(now); nextAt = now + WORK_MS; }
-        else { end(now); nextAt = now + PAUSE_MS + LAND_MS; }
-      }
-      advance(now);
-      paint();
+      if (!start) start = now;
+      var t = (now - start) % cycle;
+      show(t < PAUSE_MS ? 0 : 1 + Math.min(FRAMES - 2, Math.floor((t - PAUSE_MS) * FPS / 1000)));
       requestAnimationFrame(frame);
     }
     requestAnimationFrame(frame);
