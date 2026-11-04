@@ -84,7 +84,12 @@
   .bar svg { opacity: .9; }
   .status { display: inline-flex; align-items: center; gap: 5px; height: 22px; padding: 0 7px; border-radius: 5px; background: rgba(255,255,255,.16); font-weight: 600; font-variant-numeric: tabular-nums; }
   .shot { position: relative; margin: 6px 0 0 auto; width: 340px; }
-  .shot img { display: block; width: 100%; height: auto; border-radius: 14px; box-shadow: 0 20px 50px rgba(0,0,0,.55); }
+  /* As on the index: round the square render as the 20 pt shell is rounded,
+     crop its own edge hairline (2 px of 680), and draw the one rim inside. */
+  .frame { position: relative; overflow: hidden; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,.55); }
+  .frame::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+    box-shadow: inset 0 0 0 1px rgba(226,80,146,.38); }
+  .frame img { display: block; width: calc(100% * 680 / 676); max-width: none; height: auto; margin: calc(-100% * 2 / 676); }
 
   /* hotspots: the edge of each thing the guide explains */
   .spot { position: absolute; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; border: 0; padding: 0; cursor: pointer;
@@ -179,7 +184,7 @@
       </span>
       <span>Thu 15 Jan 10:30</span>
     </div>
-    <div class="shot" id="shot"><img id="img" src="" alt=""></div>
+    <div class="shot" id="shot"><div class="frame"><img id="img" src="" alt=""></div></div>
     <div class="lead" id="lead"></div>
     <div class="guide" id="guide" aria-hidden="true"><div class="body"><div class="aurora"></div>
       <div class="ball"><div class="win"><div class="halo"></div><div class="die"></div></div><div class="pool"></div></div></div></div>

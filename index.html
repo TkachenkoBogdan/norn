@@ -105,6 +105,23 @@
   .guide-link .go { margin-left: auto; flex: 0 0 auto; font-weight: 600; font-size: 14px; padding: 8px 16px; border-radius: 999px;
     background: var(--onyx); box-shadow: inset 0 0 0 1px var(--rim); }
   @media (max-width: 520px) { .guide-link { flex-wrap: wrap; } .guide-link .go { margin-left: 58px; } }
+  .map { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 22px auto 0; max-width: 560px; }
+  .map a { font-size: 13px; font-weight: 500; color: var(--ink-2); text-decoration: none; padding: 5px 12px; border-radius: 999px;
+    background: var(--control); box-shadow: inset 0 0 0 1px var(--control-edge); }
+  .map a:hover { color: var(--ink); background: var(--control-hover); }
+  section[id] { scroll-margin-top: 16px; }
+
+  /* Installing and Connecting fold away: the guide covers them step by step. */
+  details.fold > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 12px; }
+  details.fold > summary::-webkit-details-marker { display: none; }
+  details.fold > summary h2 { margin: 0; }
+  details.fold > summary .hint { color: var(--ink-3); font-size: 13.5px; }
+  details.fold > summary::after { content: ""; margin-left: auto; width: 9px; height: 9px; flex: 0 0 auto;
+    border-right: 2px solid var(--ink-2); border-bottom: 2px solid var(--ink-2); transform: rotate(45deg) translateY(-3px); transition: transform .2s ease; }
+  details.fold[open] > summary::after { transform: rotate(225deg) translate(-2px, -2px); }
+  details.fold > summary:hover h2 { color: var(--magenta); }
+  details.fold[open] > summary { margin-bottom: 10px; }
+
   .cta { margin: 32px 0 10px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
   .btn {
     display: inline-flex; align-items: center; gap: 8px;
@@ -161,19 +178,21 @@
 
   /* ---- screenshots ---- */
   .shots { display: grid; gap: 22px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .shots-3 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); align-items: start; }
   /* The two panels are different heights, so the captions are pushed to a shared
      bottom edge rather than each hanging off its own image. */
   .shot { display: flex; }
   .shot figure { margin: 0; display: flex; flex-direction: column; width: 100%; container-type: inline-size; }
   .shot figcaption { margin-top: auto; }
-  .shot img {
-    /* The snapshot is the panel's content, rendered square; the real panel is
-       a 20 pt rounded shell with a magenta hairline. 20 pt of a 340 pt panel,
-       at whatever width the shot is shown. */
-    display: block; width: 100%; height: auto;
-    border-radius: 20px; border-radius: calc(100cqw * 20 / 340);
-    box-shadow: 0 0 0 1px rgba(226,80,146,.3), 0 16px 38px rgba(0,0,0,.42);
-  }
+  /* The snapshot is the panel rendered square, with its own straight magenta
+     hairline along the edges. The frame rounds it as the real 20 pt shell is
+     rounded (20 pt of a 340 pt panel, at any width), crops that hairline (2 px
+     of 680) so it can't break at the corners, and draws the one rim inside. */
+  .frame { position: relative; display: block; overflow: hidden;
+    border-radius: 20px; border-radius: calc(100cqw * 20 / 340); box-shadow: 0 16px 38px rgba(0,0,0,.42); }
+  .frame::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+    box-shadow: inset 0 0 0 1px rgba(226,80,146,.38); }
+  .frame img { display: block; width: calc(100% * 680 / 676); max-width: none; height: auto; margin: calc(-100% * 2 / 676); }
   .shot figcaption { color: var(--ink-3); font-size: 12.5px; padding-top: 12px; }
   .shot figcaption b { color: var(--ink-2); font-weight: 600; }
   .sessions { display: grid; gap: 22px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); align-items: start; }
@@ -304,6 +323,10 @@
       <span>The setup guide walks you through it with the real screens, in five minutes.</span></span>
     <span class="go">Open the guide</span>
   </a>
+  <nav class="map" aria-label="On this page">
+    <a href="#look">What you get</a><a href="#sessions">Sessions</a><a href="#menubar">Menu bar</a>
+    <a href="#install">Installing</a><a href="#connect">Connecting</a><a href="#yours">Make it yours</a>
+  </nav>
 </header>
 
 <section class="reveal" id="look">
@@ -313,10 +336,10 @@
   <div class="shots">
     <div class="shot">
       <figure>
-        <img src="popover@2x.png?v=3.1.2" width="680" height="1092" loading="lazy"
+        <span class="frame"><img src="popover@2x.png?v=3.1.2" width="680" height="1092" loading="lazy"
              alt="The panel on a subscription: an organisation picker, then Session 54%,
                   Weekly 28% and Weekly Fable 30%, each with a meter and a reset time,
-                  then the Sessions list at API value.">
+                  then the Sessions list at API value."></span>
         <figcaption><b>On a subscription.</b> One row per limit, with how much is
           left and when it resets. The session — the one that moves during a
           working day — is the coloured one.</figcaption>
@@ -324,9 +347,9 @@
     </div>
     <div class="shot">
       <figure>
-        <img src="ledger@2x.png?v=3.1.2" width="680" height="1440" loading="lazy"
+        <span class="frame"><img src="ledger@2x.png?v=3.1.2" width="680" height="1440" loading="lazy"
              alt="The panel on a spend limit: $189.42 of $300, $110.58 left this cycle,
-                  63% used, a tape of the five most recent charges, and the Sessions list.">
+                  63% used, a tape of the five most recent charges, and the Sessions list."></span>
         <figcaption><b>On a spend limit.</b> What you have run up this cycle, what
           is left, and a tape of what each of the last few charges added.</figcaption>
       </figure>
@@ -341,9 +364,9 @@
   <div class="sessions">
     <div class="shot">
       <figure>
-        <img src="sessions@2x.png?v=3.1.2" width="680" height="1212" loading="lazy"
+        <span class="frame"><img src="sessions@2x.png?v=3.1.2" width="680" height="1212" loading="lazy"
              alt="The Sessions list with Desktop off, sorted by cost: two terminal sessions,
-                  two headless runs, a CLI total, and the part of the bill no session explains.">
+                  two headless runs, a CLI total, and the part of the bill no session explains."></span>
         <figcaption><b>Desktop off, sorted by cost.</b> The total follows the
           filter; what no local session explains stays below it.</figcaption>
       </figure>
@@ -368,9 +391,9 @@
   <div class="sessions">
     <div class="shot">
       <figure>
-        <img src="menubar@2x.png?v=3.1.2" width="680" height="554" loading="lazy"
+        <span class="frame"><img src="menubar@2x.png?v=3.1.2" width="680" height="554" loading="lazy"
              alt="The Menu bar text screen: Full $189.42 / $300 (today's look, 119 pt),
-                  Compact $189 / 300 (91 pt), Minimal $189 (57 pt) and Mark, the mark alone (24 pt).">
+                  Compact $189 / 300 (91 pt), Minimal $189 (57 pt) and Mark, the mark alone (24 pt)."></span>
         <figcaption><b>Four styles, measured.</b> Each row shows your own reading in
           that style and how wide it is.</figcaption>
       </figure>
@@ -388,7 +411,8 @@
 </section>
 
 <section class="reveal" id="install">
-  <h2>Installing</h2>
+<details class="fold">
+  <summary><h2>Installing</h2><span class="hint">Disk image or Homebrew</span></summary>
   <p class="lede">Two ways in. They install the same app — pick whichever you are
      comfortable with. Either way it keeps itself up to date: new versions
      download in the background and install while the panel is closed.</p>
@@ -440,17 +464,19 @@
      the ball in the menu bar, at the top right of your screen. The app
      adds itself to your login items the first time it runs, so it is there after
      a restart. You can turn that off in its settings.</p>
+</details>
 </section>
 
-<section class="reveal">
-  <h2>Connecting your Claude account</h2>
+<section class="reveal" id="connect">
+<details class="fold">
+  <summary><h2>Connecting your Claude account</h2><span class="hint">Through your own Claude Code</span></summary>
   <p class="lede">The app reads your usage through <b>your own Claude Code</b>, which
      already knows your plan and limits. It never asks for, stores or sends a login.</p>
   <div class="shot" style="max-width:340px;margin:0 auto 22px">
     <figure>
-      <img src="connect@2x.png?v=3.1.2" width="680" height="714" loading="lazy"
+      <span class="frame"><img src="connect@2x.png?v=3.1.2" width="680" height="714" loading="lazy"
            alt="The Connect screen: Norn runs your claude to ask for usage, found two
-                accounts, never reads, stores or sends a login, and never talks to claude.ai.">
+                accounts, never reads, stores or sends a login, and never talks to claude.ai."></span>
     </figure>
   </div>
   <ol>
@@ -464,6 +490,41 @@
   <p class="note">Not signed in yet? The panel shows the exact command, and
      <b>Open Terminal</b> types it for you to run. Coming from 1.x: your old session
      key is deleted from the Keychain on first launch.</p>
+</details>
+</section>
+
+<section class="reveal" id="yours">
+  <h2>Make it yours</h2>
+  <p class="lede">Settings › Appearance changes how Norn looks and moves: a dark or
+     light panel, how it opens, and which mark sits in the menu bar and how it
+     moves while a Claude Code session works.</p>
+  <div class="shots shots-3">
+    <div class="shot">
+      <figure>
+        <span class="frame"><img src="appearance@2x.png?v=3.1.2" width="680" height="716" loading="lazy"
+             alt="Appearance settings: Theme Auto, Dark or Light; Panel motion Slide, Unfurl or Fade;
+                  Menu bar mark Ball with Ring; Menu bar text; Context gauge."></span>
+        <figcaption><b>Appearance.</b> Dark or light (Pearl) panel, or follow macOS,
+          and whether it slides, unfurls or fades in.</figcaption>
+      </figure>
+    </div>
+    <div class="shot">
+      <figure>
+        <span class="frame"><img src="mark-ball@2x.png?v=3.1.2" width="680" height="798" loading="lazy"
+             alt="Menu bar mark: Ball chosen. While Claude works: Ring, Pulse, Die only or Off."></span>
+        <figcaption><b>The ball.</b> While Claude Code works its die turns: with a
+          magenta ring, a pulsing glow, on its own, or not at all.</figcaption>
+      </figure>
+    </div>
+    <div class="shot">
+      <figure>
+        <span class="frame"><img src="mark-trine@2x.png?v=3.1.2" width="680" height="888" loading="lazy"
+             alt="Menu bar mark: Trine chosen. While Claude works: Chase, Draw, Tumble, Turn or Off."></span>
+        <figcaption><b>The Trine.</b> A plain clay triangle for a quieter bar, with
+          five ways to move. <i>Off</i> keeps either still and saves battery.</figcaption>
+      </figure>
+    </div>
+  </div>
 </section>
 
 <section class="reveal">
@@ -496,6 +557,15 @@
 </div>
 
 <script>
+  // A link to Installing, Connecting or the Homebrew steps opens the fold first.
+  function openFold() {
+    var target = location.hash && document.querySelector(location.hash);
+    var fold = target && (target.querySelector('details.fold') || target.closest('details.fold'));
+    if (fold) { fold.open = true; target.scrollIntoView(); }
+  }
+  addEventListener('hashchange', openFold);
+  addEventListener('DOMContentLoaded', openFold);
+
   // Copy buttons.
   document.querySelectorAll('button[data-copy]').forEach(function (btn) {
     function flash(ok) {
