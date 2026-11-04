@@ -8,7 +8,7 @@
 <meta property="og:title" content="Set up Norn">
 <meta property="og:description" content="Install Norn, connect your Claude account, and read your spend from the menu bar.">
 <meta property="og:url" content="https://tkachenkobogdan.github.io/norn/guide.html">
-<link rel="icon" href="icon-128.png?v=3.1.2" sizes="128x128">
+<link rel="icon" href="icon-128.png?v=3.2.0" sizes="128x128">
 <style>
   /* The landing page's Onyx tokens, unchanged. */
   :root {
@@ -158,7 +158,7 @@
 
   <main>
     <div class="top">
-      <img src="icon-128.png?v=3.1.2" width="128" height="128" alt="">
+      <img src="icon-128.png?v=3.2.0" width="128" height="128" alt="">
       <div><h1>Set up Norn</h1><p>Five minutes, once.</p></div>
       <a href="./">About Norn</a>
     </div>
@@ -197,12 +197,12 @@
 // Every picture is the app's own render (SPENDBAR_SNAPSHOT_* fixtures), at @2x.
 // A tip's x/y mark the left edge of what it explains, as percentages of that
 // picture; "bar" points at the status item. The guide waits in the lane beside it.
-const V = "?v=3.1.2";
+const V = "?v=3.2.0";
 const IMG = {
   ledger:       ["guide/ledger@2x.png", 680, 1440, "Norn's panel on a dollar plan: $189.42 of $300 spent this cycle, recent checks, and Claude Code sessions with estimated costs."],
-  notInstalled: ["guide/not-installed@2x.png", 680, 582, "Claude Code isn't installed: buttons for the Claude app and the Claude Code CLI, Check again and Setup help."],
-  signIn:       ["guide/sign-in@2x.png", 680, 724, "Sign in to Claude Code: the claude auth login command, Open Terminal, and a Waiting for sign-in line."],
-  connect:      ["guide/connect@2x.png", 680, 768, "Connect through Claude Code: Norn found two accounts, never reads a login, and a Connect button."],
+  notInstalled: ["guide/not-installed@2x.png", 680, 650, "Claude Code isn't installed: buttons for the Claude app and the Claude Code CLI, Check again and Setup help."],
+  signIn:       ["guide/sign-in@2x.png", 680, 792, "Sign in to Claude Code: the claude auth login command, Open Terminal, and a Waiting for sign-in line."],
+  connect:      ["guide/connect@2x.png", 680, 836, "Connect through Claude Code: Norn found two accounts, never reads a login, and a Connect button."],
   menubar:      ["guide/menubar@2x.png", 680, 554, "Menu bar styles: Full, Compact, Minimal and Mark, each with a sample."],
   settings:     ["guide/settings@2x.png", 680, 754, "Settings: Account, Appearance, Refresh every, Toggle shortcut and Open at login."],
   signedOut:    ["guide/signed-out@2x.png", 680, 556, "Claude Code signed out of Acme Inc, with the sign-in command and Open Terminal."],
@@ -227,9 +227,9 @@ const STEPS = [
 
   { nav: "Get Claude Code", img: "notInstalled",
     tips: [
-      { x: 4.5, y: 64.4, t: "Easiest: install the Claude desktop app. Norn uses the Claude Code that comes inside it." },
-      { x: 50, y: 64.4, t: "Or install Claude Code on its own. It takes one Terminal command." },
-      { x: 25.5, y: 77.3, t: "Installed? Click Check again." }
+      { x: 4.5, y: 68.1, t: "Easiest: install the Claude desktop app. Norn uses the Claude Code that comes inside it." },
+      { x: 50, y: 68.1, t: "Or install Claude Code on its own. It takes one Terminal command." },
+      { x: 25.5, y: 79.7, t: "Installed? Click Check again." }
     ],
     html: `<h2>Norn reads your spend through Claude Code</h2>
       <p>Claude Code is Anthropic's own tool. You don't have to write code to use Norn: it asks Claude Code for your account's usage, the same figures claude.ai shows you.</p>
@@ -247,9 +247,9 @@ const STEPS = [
 
   { nav: "Sign in", img: "signIn",
     tips: [
-      { x: 4.5, y: 52, t: "This is the sign-in command. You don't need to type it." },
-      { x: 27, y: 64, t: "Click Open Terminal, then press Return. Your browser opens: sign in with your work Claude account." },
-      { x: 28, y: 74, t: "Norn notices by itself when you're signed in." }
+      { x: 4.5, y: 56.1, t: "This is the sign-in command. You don't need to type it." },
+      { x: 27, y: 67.1, t: "Click Open Terminal, then press Return. Your browser opens: sign in with your work Claude account." },
+      { x: 28, y: 76.2, t: "Norn notices by itself when you're signed in." }
     ],
     html: `<h2>Sign in with your work account</h2>
       <p>Sign in with the <b>same Claude account you use at work</b>, the one your company pays for.</p>
@@ -262,8 +262,8 @@ const STEPS = [
 
   { nav: "Connect", img: "connect",
     tips: [
-      { x: 3.5, y: 52, t: "The accounts Norn found. You can switch between them later in Settings." },
-      { x: 27, y: 73, t: "Click Connect. That's the whole set-up." }
+      { x: 3.5, y: 55.9, t: "The accounts Norn found. You can switch between them later in Settings." },
+      { x: 27, y: 75.2, t: "Click Connect. That's the whole set-up." }
     ],
     html: `<h2>Connect</h2>
       <p>Norn lists what it will and won't do, and the Claude accounts it found on this Mac. Click <b>Connect</b>.</p>
