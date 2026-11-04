@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Set up Norn</title>
+<meta name="description" content="A step-by-step guide to installing and connecting Norn, the menu-bar readout of your Claude spend.">
+<meta property="og:title" content="Set up Norn">
+<meta property="og:description" content="Install Norn, connect your Claude account, and read your spend from the menu bar.">
+<meta property="og:url" content="https://tkachenkobogdan.github.io/norn/guide.html">
+<link rel="icon" href="icon-128.png?v=3.1.2" sizes="128x128">
+<style>
+  /* The landing page's Onyx tokens, unchanged. */
+  :root {
+    --wall: #08080B; --wall-top: #26262D; --onyx: #141418;
+    --magenta: #EC4896; --rim: rgba(226,80,146,.6); --aura: rgba(168,22,88,.85); --plum: #3A1729;
+    --ink: #F2F4F7; --ink-2: rgba(242,244,247,.62); --ink-3: rgba(242,244,247,.38);
+    --line: rgba(255,255,255,.10); --control: #1A1A20; --control-hover: #26262D; --control-edge: rgba(255,255,255,.08);
+    --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: var(--font); color: var(--ink); line-height: 1.55; -webkit-font-smoothing: antialiased;
+    background:
+      radial-gradient(900px 420px at 70% 112%, rgba(236,72,150,.12), rgba(236,72,150,0) 70%) fixed,
+      radial-gradient(1200px 600px at 50% -10%, var(--wall-top), var(--wall)) fixed;
+  }
+  a { color: #F8B7D3; }
+  code { font: 13px var(--mono); color: #FFC97D; }
+  :focus-visible { outline: 2px solid var(--magenta); outline-offset: 2px; }
+
+  .layout { max-width: 1080px; margin: 0 auto; padding: 32px 16px 64px;
+            display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 56px; align-items: start; }
+
+  /* ---- left: the steps ---- */
+  .top { display: flex; align-items: center; gap: 12px; margin-bottom: 26px; }
+  .top img { width: 40px; height: 40px; }
+  .top h1 { font-size: 22px; margin: 0; letter-spacing: -.01em; }
+  .top p { margin: 0; color: var(--ink-2); font-size: 14px; }
+  .top a { margin-left: auto; color: var(--ink-2); font-size: 13px; text-decoration: none; }
+  .top a:hover { color: var(--ink); }
+
+  ol.steps { list-style: none; margin: 0 0 28px; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; counter-reset: s; }
+  ol.steps li { counter-increment: s; }
+  ol.steps button { cursor: pointer; border: 0; height: 30px; padding: 0 12px; border-radius: 15px; font: 500 13px var(--font);
+    color: var(--ink-2); background: var(--control); box-shadow: inset 0 0 0 1px var(--control-edge); }
+  ol.steps button::before { content: counter(s) "  "; white-space: pre; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  ol.steps button:hover { background: var(--control-hover); color: var(--ink); }
+  ol.steps button[aria-current=step] { color: var(--ink); background: var(--plum); box-shadow: inset 0 0 0 1px rgba(226,80,146,.5); }
+  ol.steps button.done::before { content: "✓  "; color: var(--magenta); }
+
+  .copy h2 { font-size: 30px; line-height: 1.15; letter-spacing: -.02em; margin: 0 0 14px; }
+  .copy p { color: var(--ink-2); margin: 0 0 14px; max-width: 62ch; }
+  .copy b { color: var(--ink); font-weight: 600; }
+  .copy ol, .copy ul { color: var(--ink-2); margin: 0 0 16px; padding-left: 22px; max-width: 62ch; }
+  .copy li { margin-bottom: 8px; }
+  .kbd { font: 12px var(--mono); padding: 1px 6px; border-radius: 5px; background: var(--control); box-shadow: inset 0 0 0 1px var(--control-edge); color: var(--ink); }
+  .cmd { display: flex; align-items: center; gap: 8px; max-width: 62ch; margin: 4px 0 16px; padding: 9px 9px 9px 14px;
+         background: #040406; border: 1px solid var(--line); border-radius: 10px; }
+  .cmd code { flex: 1; overflow-x: auto; white-space: nowrap; }
+  details { max-width: 62ch; border: 1px solid var(--line); border-radius: 10px; padding: 0 14px; margin: 0 0 12px; }
+  details summary { cursor: pointer; padding: 10px 0; font-weight: 500; }
+  details p, details ol { font-size: 14.5px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 16px; }
+  .chip, .copybtn { cursor: pointer; border: 0; height: 28px; padding: 0 12px; border-radius: 9px; font: 500 13px var(--font); color: var(--ink);
+    background: var(--control); box-shadow: inset 0 0 0 1px var(--control-edge); }
+  .chip:hover, .copybtn:hover { background: var(--control-hover); }
+  .chip[aria-pressed=true] { background: var(--plum); box-shadow: inset 0 0 0 1px rgba(226,80,146,.5); }
+  .chip:active, .btn:active { transform: scale(.95); }
+
+  .nav { display: flex; align-items: center; gap: 12px; margin-top: 28px; }
+  .nav .count { color: var(--ink-3); font-size: 13px; font-variant-numeric: tabular-nums; margin-right: auto; }
+  .btn { cursor: pointer; border: 0; height: 38px; padding: 0 22px; border-radius: 19px; font: 600 14px var(--font); color: var(--ink); transition: transform .12s; }
+  .btn-primary { background: var(--onyx); box-shadow: inset 0 0 0 1px var(--rim), 0 0 18px var(--aura); }
+  .btn-ghost { background: var(--control); box-shadow: inset 0 0 0 1px var(--control-edge); }
+  .btn[disabled] { opacity: .35; cursor: default; }
+
+  /* ---- right: the Mac, with the real panel ---- */
+  .stage { position: sticky; top: 24px; }
+  .bar { height: 28px; border-radius: 10px 10px 0 0; display: flex; align-items: center; justify-content: flex-end; gap: 14px; padding: 0 12px;
+         background: rgba(18,20,28,.7); border: 1px solid var(--control-edge); border-bottom-color: rgba(0,0,0,.35);
+         font-size: 12.5px; color: rgba(255,255,255,.92); white-space: nowrap; }
+  .bar svg { opacity: .9; }
+  .status { display: inline-flex; align-items: center; gap: 5px; height: 22px; padding: 0 7px; border-radius: 5px; background: rgba(255,255,255,.16); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .shot { position: relative; margin: 6px 0 0 auto; width: 340px; }
+  .shot img { display: block; width: 100%; height: auto; border-radius: 14px; box-shadow: 0 20px 50px rgba(0,0,0,.55); }
+
+  /* hotspots: where the guide can fly to */
+  .spot { position: absolute; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%; border: 0; padding: 0; cursor: pointer;
+          background: transparent; box-shadow: inset 0 0 0 2px rgba(236,72,150,.85), 0 0 10px rgba(168,22,88,.8); z-index: 4; }
+  .spot::after { content: ""; position: absolute; inset: 7px; border-radius: 50%; background: #F8B7D3; }
+  .spot[aria-current=true] { opacity: 0; pointer-events: none; }
+
+  /* ---- the guide: the ball, drawn as BallMark draws it ---- */
+  .ball { position: relative; width: var(--s); height: var(--s); border-radius: 50%; overflow: hidden; flex: none;
+    background: radial-gradient(circle at 50% 30%, #26262d 0%, #141418 42%, #040406 72%);
+    box-shadow: 0 0 calc(var(--s)*.3) calc(var(--s)*.05) rgba(168,22,88,.85), inset 0 calc(var(--s)*-.08) calc(var(--s)*.16) rgba(0,0,0,.85); }
+  .ball .pool { position: absolute; inset: 0; border-radius: 50%; z-index: 3;
+    background: radial-gradient(circle at 50% 112%, rgba(236,72,150,.85), rgba(200,30,110,.35) 30%, rgba(226,80,146,0) 48%);
+    box-shadow: inset 0 0 0 1px rgba(226,80,146,.3); }
+  .ball .win { position: absolute; left: 50%; top: 54%; width: 52%; height: 52%; transform: translate(-50%,-50%); border-radius: 50%;
+    background: radial-gradient(circle at 50% 45%, #120c0a, #000 70%); overflow: hidden; }
+  .ball .halo { position: absolute; inset: 8%; border-radius: 50%; background: radial-gradient(circle, rgba(217,119,87,.5), rgba(217,119,87,0) 70%); }
+  .ball .die { position: absolute; left: 50%; top: 50%; width: 62%; height: 54%; margin: -27% 0 0 -31%; transform-origin: 50% 33.3%;
+    clip-path: polygon(0 0, 100% 0, 50% 100%); background: linear-gradient(180deg, #F2A587, #C15F3C); }
+  .ball.turn .die { animation: spin 1.6s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .guide { position: absolute; left: 0; top: 0; z-index: 5; pointer-events: none;
+           transition: transform .9s cubic-bezier(.45,-.25,.25,1.25); }
+  .guide .ball { --s: 30px; margin: -15px 0 0 -15px; }
+  .guide.flying .ball { box-shadow: 0 0 16px 4px rgba(236,72,150,.95), inset 0 -2px 5px rgba(0,0,0,.85); }
+  .bubble { position: absolute; top: 50%; width: 220px; padding: 10px 12px; border-radius: 12px; font-size: 13.5px; line-height: 1.4;
+            background: #2A1120; box-shadow: inset 0 0 0 1px rgba(236,72,150,.85), 0 0 22px rgba(168,22,88,.7), 0 12px 32px rgba(0,0,0,.7); pointer-events: auto;
+            transform: translateY(-50%); transition: opacity .25s; }
+  .guide.left .bubble { right: 24px; }
+  .guide.right .bubble { left: 24px; }
+  .guide.flying .bubble { opacity: 0; }
+  .more { display: block; margin-top: 6px; border: 0; padding: 0; background: none; font: 600 12.5px var(--font); color: #F8B7D3; cursor: pointer; }
+
+  .caption { display: none; margin: 12px 0 0; padding: 10px 12px; border-radius: 12px; font-size: 14px; line-height: 1.45;
+             background: #2A1120; box-shadow: inset 0 0 0 1px rgba(236,72,150,.6); }
+  .caption .more { display: inline; margin-left: 6px; }
+
+  .fine { color: var(--ink-3); font-size: 12.5px; margin-top: 36px; max-width: 62ch; }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; gap: 24px; }
+    .stage { position: relative; top: 0; order: -1; max-width: 380px; margin: 0 auto; width: 100%; }
+    .shot { width: min(340px, 100%); }
+    .bubble { display: none; }
+    .caption { display: block; }
+    .copy h2 { font-size: 25px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .guide { transition: none; }
+    .ball.turn .die { animation: none; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <main>
+    <div class="top">
+      <img src="icon-128.png?v=3.1.2" width="128" height="128" alt="">
+      <div><h1>Set up Norn</h1><p>Five minutes, once.</p></div>
+      <a href="./">About Norn</a>
+    </div>
+
+    <nav aria-label="Steps"><ol class="steps" id="steps"></ol></nav>
+    <section class="copy" id="copy" aria-live="polite"></section>
+
+    <div class="nav">
+      <span class="count" id="count"></span>
+      <button class="btn btn-ghost" id="back">Back</button>
+      <button class="btn btn-primary" id="next">Next</button>
+    </div>
+
+    <p class="fine">Norn is not made by or affiliated with Anthropic. Its figures are a convenience, not a billing record: the usage page on claude.ai stays the authority.</p>
+  </main>
+
+  <aside class="stage" aria-label="Norn on your Mac">
+    <div class="bar" id="bar">
+      <svg width="15" height="11" viewBox="0 0 15 11" aria-hidden="true"><path d="M7.5 10.5 1 4a9.2 9.2 0 0 1 13 0z" fill="currentColor"/></svg>
+      <span class="status" id="status">
+        <span class="ball" style="--s:15px"><span class="win"><span class="halo"></span><span class="die"></span></span><span class="pool"></span></span>
+        <span>$189 / 300</span>
+      </span>
+      <span>Thu 15 Jan 10:30</span>
+    </div>
+    <div class="shot" id="shot">
+      <img id="img" src="" alt="">
+      <div class="guide right" id="guide">
+        <div class="ball"><div class="win"><div class="halo"></div><div class="die"></div></div><div class="pool"></div></div>
+        <div class="bubble" id="bubble"></div>
+      </div>
+    </div>
+    <p class="caption" id="caption" aria-live="polite"></p>
+  </aside>
+</div>
+
+<script>
+// Every picture is the app's own render (SPENDBAR_SNAPSHOT_* fixtures), at @2x.
+// A tip's x/y are percentages of that picture; "bar" puts it on the status item.
+const V = "?v=3.1.2";
+const IMG = {
+  ledger:       ["guide/ledger@2x.png", 680, 1440, "Norn's panel on a dollar plan: $189.42 of $300 spent this cycle, recent checks, and Claude Code sessions with estimated costs."],
+  notInstalled: ["guide/not-installed@2x.png", 680, 582, "Claude Code isn't installed: buttons for the Claude app and the Claude Code CLI, Check again and Setup help."],
+  signIn:       ["guide/sign-in@2x.png", 680, 724, "Sign in to Claude Code: the claude auth login command, Open Terminal, and a Waiting for sign-in line."],
+  connect:      ["guide/connect@2x.png", 680, 768, "Connect through Claude Code: Norn found two accounts, never reads a login, and a Connect button."],
+  menubar:      ["guide/menubar@2x.png", 680, 554, "Menu bar styles: Full, Compact, Minimal and Mark, each with a sample."],
+  settings:     ["guide/settings@2x.png", 680, 754, "Settings: Account, Appearance, Refresh every, Toggle shortcut and Open at login."],
+  signedOut:    ["guide/signed-out@2x.png", 680, 556, "Claude Code signed out of Acme Inc, with the sign-in command and Open Terminal."],
+  tooOld:       ["guide/too-old@2x.png", 680, 494, "Claude Code is too old to report usage, with the claude update command."],
+  offline:      ["guide/offline@2x.png", 680, 378, "This Mac is offline. Usage will load as soon as it's back online."]
+};
+
+const STEPS = [
+  { nav: "Download", img: "ledger",
+    tips: [
+      { at: "bar", t: "Norn lives up here, next to the clock. It's your spend this cycle against your limit." },
+      { x: 34, y: 11.5, t: "Click the ball and the panel opens: the full figure, what's left, and where it went." }
+    ],
+    html: `<h2>Download Norn</h2>
+      <p>Norn is a small Mac app that shows how much of your Claude budget you've spent, right in the menu bar. No more opening claude.ai settings to find out.</p>
+      <ol>
+        <li>On <a href="./">the Norn page</a>, click <b>Download for Mac</b>.</li>
+        <li>Open <b>Norn.dmg</b> from Downloads and drag <b>Norn</b> into <b>Applications</b>.</li>
+        <li>Open Norn. If macOS asks about an app from the internet, click <b>Open</b>.</li>
+      </ol>
+      <p>Norn has no window and no Dock icon. Look for the <b>black ball</b> at the top right of your screen.</p>` },
+
+  { nav: "Get Claude Code", img: "notInstalled",
+    tips: [
+      { x: 6, y: 64, t: "Easiest: install the Claude desktop app. Norn uses the Claude Code that comes inside it." },
+      { x: 94, y: 64, t: "Or install Claude Code on its own. It takes one Terminal command." },
+      { x: 37, y: 85, t: "Installed? Click Check again." }
+    ],
+    html: `<h2>Norn reads your spend through Claude Code</h2>
+      <p>Claude Code is Anthropic's own tool. You don't have to write code to use Norn: it asks Claude Code for your account's usage, the same figures claude.ai shows you.</p>
+      <p>Click the ball. If Norn says <b>Claude Code isn't installed</b>, pick one:</p>
+      <ul>
+        <li><b>Claude app</b>: the Claude desktop app. Install it, open it once, then come back.</li>
+        <li><b>Claude Code CLI</b>: if you'd rather not install the app, see below.</li>
+      </ul>
+      <details><summary>Install Claude Code from Terminal</summary>
+        <ol><li>Press <span class="kbd">⌘ Space</span>, type <b>Terminal</b>, press Return.</li>
+        <li>Paste this and press Return:</li></ol>
+        <div class="cmd"><code id="install-cmd">curl -fsSL https://claude.ai/install.sh | bash</code><button class="copybtn" data-copy="install-cmd">Copy</button></div>
+        <p>When it finishes, close Terminal and click <b>Check again</b> in Norn.</p>
+      </details>` },
+
+  { nav: "Sign in", img: "signIn",
+    tips: [
+      { x: 6, y: 52, t: "This is the sign-in command. You don't need to type it." },
+      { x: 78, y: 64, t: "Click Open Terminal, then press Return. Your browser opens: sign in with your work Claude account." },
+      { x: 76, y: 74, t: "Norn notices by itself when you're signed in." }
+    ],
+    html: `<h2>Sign in with your work account</h2>
+      <p>Sign in with the <b>same Claude account you use at work</b>, the one your company pays for.</p>
+      <ol>
+        <li>Click <b>Open Terminal</b>. Norn types the command for you.</li>
+        <li>Press <b>Return</b>. Your browser opens.</li>
+        <li>Sign in and approve. Then come back to Norn.</li>
+      </ol>
+      <p>Your password goes to Anthropic, never to Norn. Norn can't read it and never stores it.</p>` },
+
+  { nav: "Connect", img: "connect",
+    tips: [
+      { x: 6, y: 52, t: "The accounts Norn found. You can switch between them later in Settings." },
+      { x: 76, y: 73, t: "Click Connect. That's the whole set-up." }
+    ],
+    html: `<h2>Connect</h2>
+      <p>Norn lists what it will and won't do, and the Claude accounts it found on this Mac. Click <b>Connect</b>.</p>
+      <p>Signed in to a personal account too? Norn shows one at a time. Pick your work one under <b>Settings › Account</b>.</p>` },
+
+  { nav: "Your spend", img: "ledger",
+    tips: [
+      { x: 44, y: 11.5, t: "Spent this cycle, of your limit, and what's left." },
+      { x: 66, y: 20, t: "The meter fills as the cycle goes on." },
+      { x: 6, y: 34, t: "Each line is one check and what it added. A big jump means a busy hour." },
+      { x: 6, y: 90.7, t: "Unattributed: spend that isn't from Claude Code on this Mac, such as your chats on claude.ai or another computer." }
+    ],
+    html: `<h2>Your spend at a glance</h2>
+      <p>On a company plan billed in dollars, the panel shows <b>what you've spent this cycle</b>, your <b>limit</b>, and <b>what's left</b>.</p>
+      <ul>
+        <li><b>Recent checks</b>: what each check added, so you can see when spend went up.</li>
+        <li><b>Sessions</b>: if you also use Claude Code, each session with its estimated cost.</li>
+        <li><b>Unattributed</b>: the rest of your spend, which is mostly chats if you don't use Claude Code.</li>
+      </ul>
+      <p>On a personal Pro or Max plan you'll see your session and weekly limits instead.</p>` },
+
+  { nav: "Menu bar", img: "menubar",
+    tips: [
+      { x: 6, y: 38.5, t: "Full: spent and limit." },
+      { x: 6, y: 71, t: "Minimal: just what you've spent." },
+      { x: 6, y: 87, t: "Mark: only the ball, for a tidy menu bar." }
+    ],
+    html: `<h2>Choose what the menu bar shows</h2>
+      <p>The figure next to the ball is always there, so you can keep an eye on spend without clicking.</p>
+      <p>Change it in <b>Settings › Appearance › Menu bar</b>. Norn checks every few minutes, and again whenever you open the panel.</p>` },
+
+  { nav: "Settings", img: "settings",
+    tips: [
+      { x: 94, y: 79, t: "Turn on Open at login so Norn starts with your Mac." },
+      { x: 94, y: 20.5, t: "Account: switch between work and personal." },
+      { x: 50, y: 64, t: "A keyboard shortcut to open Norn from any app." }
+    ],
+    html: `<h2>Settings</h2>
+      <p>Click the gear at the bottom of the panel.</p>
+      <ul>
+        <li><b>Open at login</b>: keep this on, or Norn is gone after a restart.</li>
+        <li><b>Account</b>: which Claude account Norn shows.</li>
+        <li><b>Appearance</b>: dark, light, or follow your Mac, and the menu bar text.</li>
+        <li><b>Refresh every</b>: how often Norn checks.</li>
+        <li><b>Toggle shortcut</b>: open the panel from anywhere.</li>
+      </ul>` },
+
+  { nav: "If something's wrong", img: "signedOut", trouble: true,
+    html: `<h2>If something's wrong</h2>
+      <p>The panel says what happened and gives you one thing to do. Every set-up screen also has a <b>Setup help</b> link back to this page.</p>
+      <div class="chips" id="troubles"></div>
+      <details><summary>Is Norn safe?</summary>
+        <p>Norn never asks for, sees or stores your Claude password, and it doesn't read your chats. It asks Claude Code for your usage figures and shows them. It's signed and notarised by Apple, and it updates itself.</p>
+      </details>
+      <details><summary>How do I remove it?</summary>
+        <p>Click the ball, click the gear, click <b>Quit</b>, then move Norn from Applications to the Bin.</p>
+      </details>` }
+];
+
+const TROUBLE = {
+  signedOut: [
+    { x: 6, y: 25, t: "Claude Code was signed out, which happens now and then." },
+    { x: 6, y: 54, t: "Click Open Terminal, press Return, sign in again. Norn picks it up by itself." }
+  ],
+  tooOld: [
+    { x: 6, y: 27, t: "Your Claude Code is too old to report usage." },
+    { x: 6, y: 58, t: "Update it with this command, or update the Claude app, then click Check again." }
+  ],
+  offline: [
+    { x: 50, y: 48, t: "No internet. Norn shows your last figures again as soon as you're back online." }
+  ]
+};
+const TROUBLE_NAMES = [["signedOut", "Signed out"], ["tooOld", "Needs an update"], ["offline", "Offline"]];
+
+const $ = s => document.querySelector(s);
+const shot = $("#shot"), img = $("#img"), guide = $("#guide"), bubble = $("#bubble"), dieBall = guide.querySelector(".ball");
+let step = 0, tip = 0, trouble = "signedOut", visited = new Set([0]), landTimer;
+
+function tipsOf(s) { return s.trouble ? TROUBLE[trouble] : s.tips; }
+function imgOf(s) { return s.trouble ? trouble : s.img; }
+
+// Where a tip sits, in px within .shot.
+function place(t) {
+  if (t.at === "bar") {
+    const r = $("#status").getBoundingClientRect(), base = shot.getBoundingClientRect();
+    return [r.left - base.left - 18, r.top + r.height / 2 - base.top];
+  }
+  return [shot.clientWidth * t.x / 100, shot.clientHeight * t.y / 100];
+}
+
+function fly(n) {
+  const tips = tipsOf(STEPS[step]);
+  tip = (n + tips.length) % tips.length;
+  const t = tips[tip], [x, y] = place(t);
+  guide.classList.add("flying");
+  dieBall.classList.add("turn");
+  guide.classList.toggle("left", x > shot.clientWidth * .55 || t.at === "bar");
+  guide.classList.toggle("right", !(x > shot.clientWidth * .55 || t.at === "bar"));
+  guide.style.transform = `translate(${x}px, ${y}px)`;
+  const more = tips.length > 1 ? `<button class="more">${tip < tips.length - 1 ? "Next tip" : "From the top"}</button>` : "";
+  bubble.innerHTML = $("#caption").innerHTML = t.t + more;
+  document.querySelectorAll(".bubble .more, .caption .more").forEach(b => b.onclick = () => fly(tip + 1));
+  shot.querySelectorAll(".spot").forEach((s, k) => s.setAttribute("aria-current", k === tip));
+  clearTimeout(landTimer);
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  landTimer = setTimeout(() => { guide.classList.remove("flying"); dieBall.classList.remove("turn"); }, still ? 0 : 900);
+}
+
+function spots() {
+  shot.querySelectorAll(".spot").forEach(s => s.remove());
+  tipsOf(STEPS[step]).forEach((t, k) => {
+    if (t.at === "bar") return;
+    const b = document.createElement("button");
+    b.className = "spot"; b.style.left = t.x + "%"; b.style.top = t.y + "%";
+    b.setAttribute("aria-label", t.t); b.onclick = () => fly(k);
+    shot.appendChild(b);
+  });
+}
+
+function show(n) {
+  step = Math.max(0, Math.min(STEPS.length - 1, n));
+  visited.add(step);
+  const s = STEPS[step], [src, w, h, alt] = IMG[imgOf(s)];
+  $("#copy").innerHTML = s.html;
+  document.querySelectorAll("#steps button").forEach((b, k) => {
+    k === step ? b.setAttribute("aria-current", "step") : b.removeAttribute("aria-current");
+    b.classList.toggle("done", visited.has(k) && k < step);
+  });
+  $("#count").textContent = `Step ${step + 1} of ${STEPS.length}`;
+  $("#back").disabled = step === 0;
+  $("#next").textContent = step === STEPS.length - 1 ? "Done" : "Next";
+
+  if (s.trouble) {
+    const el = $("#troubles");
+    el.innerHTML = TROUBLE_NAMES.map(([k, l]) => `<button class="chip" aria-pressed="${k === trouble}" data-k="${k}">${l}</button>`).join("");
+    el.onclick = e => { const b = e.target.closest("[data-k]"); if (b) { trouble = b.dataset.k; show(step); } };
+  }
+  document.querySelectorAll("[data-copy]").forEach(b => b.addEventListener("click", () => {
+    navigator.clipboard?.writeText(document.getElementById(b.dataset.copy).textContent);
+    b.textContent = "Copied";
+  }));
+
+  const go = () => { spots(); fly(0); };
+  if (img.getAttribute("src") !== src + V) {
+    img.onload = go; img.src = src + V; img.width = w; img.height = h; img.alt = alt;
+    if (img.complete) go();
+  } else go();
+}
+
+$("#steps").innerHTML = STEPS.map((s, k) => `<li><button data-k="${k}">${s.nav}</button></li>`).join("");
+$("#steps").onclick = e => { const b = e.target.closest("[data-k]"); if (b) show(+b.dataset.k); };
+$("#back").onclick = () => show(step - 1);
+$("#next").onclick = () => step === STEPS.length - 1 ? (location.href = "./") : show(step + 1);
+addEventListener("resize", () => fly(tip));
+addEventListener("keydown", e => {
+  if (e.target.closest("summary, input, textarea")) return;
+  if (e.key === "ArrowRight") show(step + 1);
+  if (e.key === "ArrowLeft") show(step - 1);
+});
+show(0);
+</script>
+</body>
+</html>
