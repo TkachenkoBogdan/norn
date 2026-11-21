@@ -8,7 +8,7 @@
 <meta property="og:title" content="Set up Norn">
 <meta property="og:description" content="Install Norn, connect your Claude account, and read your spend from the menu bar.">
 <meta property="og:url" content="https://tkachenkobogdan.github.io/norn/guide.html">
-<link rel="icon" href="icon-128.png?v=3.2.0" sizes="128x128">
+<link rel="icon" href="icon-128.png?v=4.0.0" sizes="128x128">
 <style>
   /* The landing page's Onyx tokens, unchanged. */
   :root {
@@ -97,44 +97,31 @@
   .spot:hover { opacity: .9; }
   .spot[aria-current=true] { opacity: 1; box-shadow: 0 0 0 4px rgba(236,72,150,.7), 0 0 16px rgba(236,72,150,.95); }
 
-  /* ---- the guide: the turn notice's ball, in the lane beside the panel ---- */
-  .ball { position: relative; width: var(--s); height: var(--s); border-radius: 50%; overflow: hidden; flex: none;
-    background: radial-gradient(circle at 50% 30%, #26262d 0%, #141418 42%, #040406 72%);
-    box-shadow: 0 0 calc(var(--s)*.3) calc(var(--s)*.05) rgba(168,22,88,.85), inset 0 calc(var(--s)*-.08) calc(var(--s)*.16) rgba(0,0,0,.85); }
-  .ball .pool { position: absolute; inset: 0; border-radius: 50%; z-index: 3;
-    background: radial-gradient(circle at 50% 112%, rgba(236,72,150,.85), rgba(200,30,110,.35) 30%, rgba(226,80,146,0) 48%);
-    box-shadow: inset 0 0 0 1px rgba(226,80,146,.3); }
-  .ball .win { position: absolute; left: 50%; top: 54%; width: 52%; height: 52%; transform: translate(-50%,-50%); border-radius: 50%;
-    background: radial-gradient(circle at 50% 45%, #120c0a, #000 70%); overflow: hidden; }
-  .ball .halo { position: absolute; inset: 8%; border-radius: 50%; background: radial-gradient(circle, rgba(217,119,87,.5), rgba(217,119,87,0) 70%); }
-  .ball .die { position: absolute; left: 50%; top: 50%; width: 62%; height: 54%; margin: -27% 0 0 -31%; transform-origin: 50% 33.3%;
-    clip-path: polygon(0 0, 100% 0, 50% 100%); background: linear-gradient(180deg, #F2A587, #C15F3C); }
-  .ball.turn .die { animation: spin 1.6s linear infinite; }
+  /* ---- the guide: the Norn herself, in the lane beside the panel. A still of the app's own shader
+     (ball@2x.png, halo and all: she fills 1/1.9 of the picture), never redrawn here. ---- */
+  .ball { position: relative; width: var(--s); height: var(--s); flex: none; }
+  .ball img { position: absolute; left: 50%; top: 50%; width: calc(var(--s) * 1.9); height: calc(var(--s) * 1.9);
+              max-width: none; transform: translate(-50%, -50%); display: block; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  .guide { position: absolute; left: 0; top: 0; z-index: 6; pointer-events: none;
-           transition: transform .9s cubic-bezier(.45,-.25,.25,1.25); }
-  .guide .body { position: absolute; left: -36px; top: -36px; width: 72px; height: 72px; animation: hover 8s ease-in-out infinite; }
-  .guide .ball { --s: 72px; }
-  /* The aurora: magenta, violet and pink, blurred, turning behind the ball. */
-  .guide .aurora { position: absolute; inset: -9px; border-radius: 50%; filter: blur(9px); opacity: .9;
-    background: conic-gradient(#DB38B3, #7A2BD6, #FF78C7, #DB38B3); animation: spin 8s linear infinite; }
-  .guide.flying .aurora { opacity: 1; inset: -14px; }
+  /* A little under her size in the app (92 px across): 78 px, halo outside that. JS moves her. */
+  .guide { position: absolute; left: 0; top: 0; z-index: 6; pointer-events: none; will-change: transform; }
+  .guide .body { position: absolute; left: -39px; top: -39px; width: 78px; height: 78px; }
+  .guide .ball { --s: 78px; }
   @keyframes hover { 0%, 100% { transform: translateY(-3px); } 50% { transform: translateY(3px); } }
 
-  .lead { position: absolute; z-index: 5; height: 2px; transform-origin: 0 50%; pointer-events: none; border-radius: 1px;
-          background: linear-gradient(90deg, rgba(236,72,150,.0), rgba(236,72,150,.85)); transition: opacity .25s; }
-  .bubble { position: absolute; z-index: 6; width: 196px; padding: 11px 13px; border-radius: 14px; font-size: 13.5px; line-height: 1.4;
-            background: linear-gradient(180deg, #1E1E25, #121216); box-shadow: inset 0 0 0 1px rgba(226,80,146,.55), 0 12px 32px rgba(0,0,0,.6);
-            transition: opacity .25s, top .9s cubic-bezier(.45,-.25,.25,1.25); }
-  .bubble::before { content: ""; position: absolute; left: 50%; width: 12px; height: 12px; margin-left: -6px; transform: rotate(45deg);
-            background: inherit; box-shadow: inset 1px 1px 0 rgba(226,80,146,.55); }
-  .bubble.below::before { top: -6px; background: #1E1E25; }
-  .bubble.above::before { bottom: -6px; background: #121216; box-shadow: inset -1px -1px 0 rgba(226,80,146,.55); }
+  /* Her thread of light and her smoked-glass pane, as the app draws them: bone ink, a clay accent, no magenta. */
+  .lead { position: absolute; z-index: 5; height: 1.5px; transform-origin: 0 50%; pointer-events: none; border-radius: 1px;
+          background: linear-gradient(90deg, rgba(240,230,216,0), rgba(240,230,216,.67) 40%, #D97757);
+          box-shadow: 0 0 6px rgba(217,119,87,.8); transition: opacity .25s; }
+  .bubble { position: absolute; z-index: 6; width: 204px; padding: 15px 18px; border-radius: 14px; font-size: 13px; line-height: 1.45;
+            color: #E8E0D0; background: rgba(16,13,12,.86); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+            box-shadow: inset 0 1px 0 rgba(240,230,216,.12), inset 0 0 0 1px rgba(240,230,216,.12), 0 12px 32px rgba(0,0,0,.6);
+            transition: opacity .25s; }
   .stage.flying .bubble, .stage.flying .lead { opacity: 0; }
-  .more { display: block; margin-top: 6px; border: 0; padding: 0; background: none; font: 600 12.5px var(--font); color: #F8B7D3; cursor: pointer; }
+  .more { display: block; margin-top: 6px; border: 0; padding: 0; background: none; font: 600 11.5px var(--font); color: #F2A587; cursor: pointer; }
   .caption { display: none; margin: 12px 0 0; padding: 10px 12px; border-radius: 12px; font-size: 14px; line-height: 1.45;
-             background: linear-gradient(180deg, #1E1E25, #121216); box-shadow: inset 0 0 0 1px rgba(226,80,146,.55); }
+             color: #E8E0D0; background: rgba(16,13,12,.86); box-shadow: inset 0 0 0 1px rgba(240,230,216,.12); }
   .caption .more { display: inline; margin-left: 6px; }
 
   .fine { color: var(--ink-3); font-size: 12.5px; margin-top: 36px; max-width: 62ch; }
@@ -149,7 +136,7 @@
   }
   @media (prefers-reduced-motion: reduce) {
     .guide, .bubble { transition: none; }
-    .ball.turn .die, .guide .aurora, .guide .body { animation: none; }
+    .guide .body { animation: none; }
   }
 </style>
 </head>
@@ -158,7 +145,6 @@
 
   <main>
     <div class="top">
-      <img src="icon-128.png?v=3.2.0" width="128" height="128" alt="">
       <div><h1>Set up Norn</h1><p>Five minutes, once.</p></div>
       <a href="./">About Norn</a>
     </div>
@@ -179,15 +165,15 @@
     <div class="bar" id="bar">
       <svg width="15" height="11" viewBox="0 0 15 11" aria-hidden="true"><path d="M7.5 10.5 1 4a9.2 9.2 0 0 1 13 0z" fill="currentColor"/></svg>
       <span class="status" id="status">
-        <span class="ball" style="--s:15px"><span class="win"><span class="halo"></span><span class="die"></span></span><span class="pool"></span></span>
+        <span class="ball" style="--s:15px"><img data-shell src="ball@2x.png?v=4.0.0" width="1140" height="1140" alt=""></span>
         <span>$189 / 300</span>
       </span>
       <span>Thu 15 Jan 10:30</span>
     </div>
     <div class="shot" id="shot"><div class="frame"><img id="img" src="" alt=""></div></div>
     <div class="lead" id="lead"></div>
-    <div class="guide" id="guide" aria-hidden="true"><div class="body"><div class="aurora"></div>
-      <div class="ball"><div class="win"><div class="halo"></div><div class="die"></div></div><div class="pool"></div></div></div></div>
+    <div class="guide" id="guide" aria-hidden="true"><div class="body">
+      <div class="ball"><img data-shell src="ball@2x.png?v=4.0.0" width="1140" height="1140" alt=""></div></div></div>
     <div class="bubble below" id="bubble"></div>
     <p class="caption" id="caption" aria-live="polite"></p>
   </aside>
@@ -197,14 +183,15 @@
 // Every picture is the app's own render (SPENDBAR_SNAPSHOT_* fixtures), at @2x.
 // A tip's x/y mark the left edge of what it explains, as percentages of that
 // picture; "bar" points at the status item. The guide waits in the lane beside it.
-const V = "?v=3.2.0";
+const V = "?v=4.0.0";
 const IMG = {
   ledger:       ["guide/ledger@2x.png", 680, 1440, "Norn's panel on a dollar plan: $189.42 of $300 spent this cycle, recent checks, and Claude Code sessions with estimated costs."],
   notInstalled: ["guide/not-installed@2x.png", 680, 650, "Claude Code isn't installed: buttons for the Claude app and the Claude Code CLI, Check again and Setup help."],
   signIn:       ["guide/sign-in@2x.png", 680, 792, "Sign in to Claude Code: the claude auth login command, Open Terminal, and a Waiting for sign-in line."],
   connect:      ["guide/connect@2x.png", 680, 836, "Connect through Claude Code: Norn found two accounts, never reads a login, and a Connect button."],
   menubar:      ["guide/menubar@2x.png", 680, 554, "Menu bar styles: Full, Compact, Minimal and Mark, each with a sample."],
-  settings:     ["guide/settings@2x.png", 680, 754, "Settings: Account, Appearance, Refresh every, Toggle shortcut and Open at login."],
+  norn:         ["guide/norn@2x.png", 680, 1204, "The Norn: awake, with what she tells you. Context, Questions, Done, Usage limits, Weekly steps and Hover hints."],
+  settings:     ["guide/settings@2x.png", 680, 892, "Settings: The Norn, Account, Appearance, Refresh every, Toggle shortcut and Open at login."],
   signedOut:    ["guide/signed-out@2x.png", 680, 556, "Claude Code signed out of Acme Inc, with the sign-in command and Open Terminal."],
   tooOld:       ["guide/too-old@2x.png", 680, 494, "Claude Code is too old to report usage, with the claude update command."],
   offline:      ["guide/offline@2x.png", 680, 378, "This Mac is offline. Usage will load as soon as it's back online."]
@@ -214,7 +201,7 @@ const STEPS = [
   { nav: "Download", img: "ledger",
     tips: [
       { at: "bar", t: "Norn lives up here, next to the clock. It's your spend this cycle against your limit." },
-      { x: 3, y: 11.5, t: "Click the ball and the panel opens: the full figure, what's left, and where it went." }
+      { x: 3, y: 11.5, t: "Click the Norn and the panel opens: the full figure, what's left, and where it went." }
     ],
     html: `<h2>Download Norn</h2>
       <p>Norn is a small Mac app that shows how much of your Claude budget you've spent, right in the menu bar. No more opening claude.ai settings to find out.</p>
@@ -223,7 +210,7 @@ const STEPS = [
         <li>Open <b>Norn.dmg</b> from Downloads and drag <b>Norn</b> into <b>Applications</b>.</li>
         <li>Open Norn. If macOS asks about an app from the internet, click <b>Open</b>.</li>
       </ol>
-      <p>Norn has no window and no Dock icon. Look for the <b>black ball</b> at the top right of your screen.</p>` },
+      <p>Norn has no window and no Dock icon. Look for <b>the Norn</b> at the top right of your screen: a round glass mark with a clay triangle in it.</p>` },
 
   { nav: "Get Claude Code", img: "notInstalled",
     tips: [
@@ -233,7 +220,7 @@ const STEPS = [
     ],
     html: `<h2>Norn reads your spend through Claude Code</h2>
       <p>Claude Code is Anthropic's own tool. You don't have to write code to use Norn: it asks Claude Code for your account's usage, the same figures claude.ai shows you.</p>
-      <p>Click the ball. If Norn says <b>Claude Code isn't installed</b>, pick one:</p>
+      <p>Click the Norn. If the app says <b>Claude Code isn't installed</b>, pick one:</p>
       <ul>
         <li><b>Claude app</b>: the Claude desktop app. Install it, open it once, then come back.</li>
         <li><b>Claude Code CLI</b>: if you'd rather not install the app, see below.</li>
@@ -289,22 +276,38 @@ const STEPS = [
     tips: [
       { x: 3, y: 38.5, t: "Full: spent and limit." },
       { x: 3, y: 71, t: "Minimal: just what you've spent." },
-      { x: 3, y: 87, t: "Mark: only the ball, for a tidy menu bar." }
+      { x: 3, y: 87, t: "Mark: only the Norn, for a tidy menu bar." }
     ],
     html: `<h2>Choose what the menu bar shows</h2>
-      <p>The figure next to the ball is always there, so you can keep an eye on spend without clicking.</p>
+      <p>The figure next to the Norn is always there, so you can keep an eye on spend without clicking.</p>
       <p>Change it in <b>Settings › Appearance › Menu bar</b>. Norn checks every few minutes, and again whenever you open the panel.</p>` },
+
+  { nav: "The Norn", img: "norn",
+    tips: [
+      { x: 3, y: 42, t: "Context: when a thread is big enough to warn about." },
+      { x: 3, y: 63, t: "Done: tells you when a long turn has finished." },
+      { x: 3, y: 73, t: "Usage limits: how full before she warns." }
+    ],
+    html: `<h2>She comes to you</h2>
+      <p>The Norn is awake from the start. When a thread grows heavy, Claude is waiting on you, a long turn ends or a limit draws near, she drops from the menu bar and says so.</p>
+      <ul>
+        <li><b>The first time</b>, she says hello and shows you two things: press and hold her to ask a question, and drag her away to send her home.</li>
+        <li><b>Got it</b>, in the corner of what she says, sends her back.</li>
+        <li><b>Settings › The Norn</b> picks what she tells you, or lets her sleep.</li>
+      </ul>` },
 
   { nav: "Settings", img: "settings",
     tips: [
-      { x: 2.5, y: 77, t: "Turn on Open at login so Norn starts with your Mac." },
-      { x: 2.5, y: 18.5, t: "Account: switch between work and personal." },
-      { x: 2.5, y: 62, t: "A keyboard shortcut to open Norn from any app." }
+      { x: 2.5, y: 82, t: "Turn on Open at login so Norn starts with your Mac." },
+      { x: 2.5, y: 19, t: "The Norn: what she tells you, or let her sleep." },
+      { x: 2.5, y: 33, t: "Account: switch between work and personal." },
+      { x: 2.5, y: 70, t: "A keyboard shortcut to open Norn from any app." }
     ],
     html: `<h2>Settings</h2>
       <p>Click the gear at the bottom of the panel.</p>
       <ul>
         <li><b>Open at login</b>: keep this on, or Norn is gone after a restart.</li>
+        <li><b>The Norn</b>: what she tells you about, or let her sleep.</li>
         <li><b>Account</b>: which Claude account Norn shows.</li>
         <li><b>Appearance</b>: dark, light, or follow your Mac, and the menu bar text.</li>
         <li><b>Refresh every</b>: how often Norn checks.</li>
@@ -319,7 +322,7 @@ const STEPS = [
         <p>Norn never asks for, sees or stores your Claude password, and it doesn't read your chats. It asks Claude Code for your usage figures and shows them. It's signed and notarised by Apple, and it updates itself.</p>
       </details>
       <details><summary>How do I remove it?</summary>
-        <p>Click the ball, click the gear, click <b>Quit</b>, then move Norn from Applications to the Bin.</p>
+        <p>Click the Norn, click the gear, click <b>Quit</b>, then move Norn from Applications to the Bin.</p>
       </details>` }
 ];
 
@@ -337,6 +340,10 @@ const TROUBLE = {
   ]
 };
 const TROUBLE_NAMES = [["signedOut", "Signed out"], ["tooOld", "Needs an update"], ["offline", "Offline"]];
+
+// The shell picked on the landing page (Onyx unless Pearl was chosen there).
+try { if (localStorage.getItem("norn-shell") === "pearl")
+  document.querySelectorAll("img[data-shell]").forEach(i => i.src = "ball-pearl@2x.png?v=4.0.0"); } catch (e) {}
 
 const $ = s => document.querySelector(s);
 const stage = $("#stage"), shot = $("#shot"), img = $("#img"), guide = $("#guide"), bubble = $("#bubble"),
@@ -366,29 +373,54 @@ function fly(n) {
 
   stage.classList.add("flying");
   dieBall.classList.add("turn");
-  guide.style.transform = `translate(${bx}px, ${by}px)`;
-
-  // The lead runs from the ball's rim to the target.
-  const dx = tx - bx, dy = ty - by, length = Math.hypot(dx, dy), rim = 44;
-  lead.style.left = bx + dx / length * rim + "px";
-  lead.style.top = by + dy / length * rim - 1 + "px";
-  lead.style.width = Math.max(0, length - rim - 6) + "px";
-  lead.style.transform = `rotate(${Math.atan2(dy, dx)}rad)`;
+  motion.goal = [bx, by]; motion.aim = [tx, ty]; motion.landed = -1;
 
   const more = tips.length > 1 ? `<button class="more">${tip < tips.length - 1 ? "Next tip" : "From the top"}</button>` : "";
   bubble.innerHTML = $("#caption").innerHTML = t.t + more;
   document.querySelectorAll(".bubble .more, .caption .more").forEach(b => b.onclick = () => fly(tip + 1));
-  const h = bubble.offsetHeight, below = by + 52 + h < stage.clientHeight;
+  const h = bubble.offsetHeight, below = by + 55 + h < stage.clientHeight;
   bubble.classList.toggle("below", below);
   bubble.classList.toggle("above", !below);
-  bubble.style.left = bx - bubble.offsetWidth / 2 + "px";
-  bubble.style.top = (below ? by + 52 : by - 52 - h) + "px";
+  motion.bubble = [-bubble.offsetWidth / 2, below ? 55 : -55 - h];
+  if (!motion.started) { motion.p = [bx, by]; motion.started = true; }
 
   shot.querySelectorAll(".spot").forEach((s, k) => s.setAttribute("aria-current", k === tip));
   clearTimeout(landTimer);
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
   landTimer = setTimeout(() => { stage.classList.remove("flying"); dieBall.classList.remove("turn"); }, still ? 0 : 900);
 }
+
+// She moves as the app moves her (DropTuning, BallDrop+Motion): an overdamped spring, stiffness 7 over 2 s;
+// on landing a flutter (5 pt, 7 a second, gone in 1.2 s) and a rock (0.26 rad, 1.15 Hz); then her hover,
+// sway ±6 pt every 4 s and float 15 pt every 8 s. Her lead and her pane travel with her.
+const motion = { p: [0, 0], v: [0, 0], goal: [0, 0], aim: [0, 0], bubble: [0, 0], landed: -1, started: false, last: 0 };
+(function () {
+  const TAU = Math.PI * 2, W = 3.5, still = matchMedia("(prefers-reduced-motion: reduce)").matches, t0 = performance.now();
+  const flutter = t => t < 0 || t > 1.2 ? 0 : 5 * Math.exp(-3 * t) * Math.sin(TAU * 7 * t);
+  const rock = t => t < 0 || t > 1.9 ? 0 : -0.26 * Math.exp(-2.6 * t) * Math.sin(TAU * 1.15 * t);
+  function frame(now) {
+    const dt = Math.min(0.25, (now - motion.last) / 1000 || 0); motion.last = now;
+    const p = motion.p, v = motion.v, g = motion.goal;
+    if (still) { p[0] = g[0]; p[1] = g[1]; }
+    else for (let n = Math.ceil(dt * 240), h = dt / Math.max(1, n), i = 0; i < n; i++)
+      for (let k = 0; k < 2; k++) { v[k] += (-W * W * (p[k] - g[k]) - 2 * W * v[k]) * h; p[k] += v[k] * h; }
+    if (motion.landed < 0 && Math.hypot(p[0] - g[0], p[1] - g[1]) < 1.5) motion.landed = now;
+    const since = motion.landed < 0 ? -1 : (now - motion.landed) / 1000, t = (now - t0) / 1000;
+    const calm = still ? 0 : 1;
+    const x = p[0] + calm * (flutter(since) + 6 * Math.sin(TAU * t / 4));
+    const y = p[1] + calm * 15 * (Math.cos(TAU * t / 8) * 0.5 - 1 / 6);
+    guide.style.transform = `translate(${x}px, ${y}px) rotate(${calm * rock(since)}rad)`;
+    bubble.style.left = x + motion.bubble[0] + "px";
+    bubble.style.top = y + motion.bubble[1] + "px";
+    const [tx, ty] = motion.aim, dx = tx - x, dy = ty - y, length = Math.hypot(dx, dy) || 1, rim = 46;
+    lead.style.left = x + dx / length * rim + "px";
+    lead.style.top = y + dy / length * rim - 1 + "px";
+    lead.style.width = Math.max(0, length - rim - 6) + "px";
+    lead.style.transform = `rotate(${Math.atan2(dy, dx)}rad)`;
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(n => { motion.last = n; frame(n); });
+})();
 
 function spots() {
   shot.querySelectorAll(".spot").forEach(s => s.remove());

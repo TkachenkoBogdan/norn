@@ -9,7 +9,7 @@
 <meta property="og:description" content="Your claude.ai usage, in the menu bar.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://tkachenkobogdan.github.io/norn/">
-<link rel="icon" href="icon-128.png?v=3.2.0" sizes="128x128">
+<link rel="icon" href="icon-128.png?v=4.0.0" sizes="128x128">
 <style>
   :root {
     /* Onyx: the ball's shell, lit by its magenta. Clay is the die's alone and
@@ -46,6 +46,57 @@
   /* ---- header ---- */
   header { text-align: center; padding: 72px 0 40px; }
   .mark { width: 88px; height: 88px; display: block; margin: 0 auto 22px; }
+  /* The centrepiece: the Norn herself, as the app's shader draws her (ball@2x.png is a still of it, halo
+     and all). She floats a little, and every few seconds her runes kindle: the lit still fades in over
+     the resting one. Nothing here is redrawn by hand. */
+  .orb { position: relative; width: min(330px, 80vw); aspect-ratio: 1; margin: -28px auto -34px; }
+  .orb img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .orb .lit { opacity: 0; animation: kindle 9s ease-in-out infinite; }
+  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+  @keyframes kindle { 0%, 52%, 100% { opacity: 0; } 62%, 78% { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .orb, .orb .lit { animation: none; } }
+  /* She comes down from the menu bar when the page opens. */
+  .drop { will-change: transform; opacity: 0; }
+  @media (prefers-reduced-motion: reduce) { .drop { opacity: 1; } .follower { transition: none !important; } }
+  header h1 { margin-top: 0; }
+  /* She comes to you: what she says, as three plain lines beside the two balls. */
+  .norn { max-width: 720px; margin: 18px auto 0; }
+  .norn .pair { display: flex; justify-content: center; }
+  .twins { display: flex; justify-content: center; gap: 8px; margin: -8px 0 6px; }
+  .twins figure { margin: 0; width: min(240px, 46vw); text-align: center; }
+  .twins img { width: 100%; height: auto; display: block; margin-bottom: -22px; }
+  /* The Onyx twin lifts out of her place and follows the page, then flies back when you return. */
+  .follower { position: fixed; z-index: 50; pointer-events: none; left: 0; top: 0; will-change: transform; transform-origin: 50% 50%; }
+  .follower img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .follower .kindle { opacity: 0; animation: kindle 9s ease-in-out infinite; }
+  .twins img { transition: opacity .25s ease; }
+  .shell { display: inline-flex; gap: 2px; padding: 3px; margin-top: 6px; border-radius: 999px;
+    background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); }
+  .shell button { font: inherit; font-size: 12.5px; color: var(--ink-3); background: none; border: 0;
+    padding: 5px 14px; border-radius: 999px; cursor: pointer; transition: background .2s, color .2s; }
+  .shell button[aria-checked="true"] { color: #fff; background: rgba(226,80,146,.28);
+    box-shadow: 0 0 12px rgba(226,80,146,.35); }
+  /* Her words while she follows: the app's smoked-glass pane, bone ink, a clay accent. */
+  .says { position: fixed; left: 0; top: 0; z-index: 49; width: 220px; padding: 13px 16px; border-radius: 14px;
+    font-size: 13px; line-height: 1.45; color: #E8E0D0; background: rgba(16,13,12,.86);
+    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); pointer-events: none;
+    box-shadow: inset 0 1px 0 rgba(240,230,216,.12), inset 0 0 0 1px rgba(240,230,216,.12), 0 12px 32px rgba(0,0,0,.6);
+    opacity: 0; transform-origin: 50% 0; transition: opacity .25s ease, scale .45s cubic-bezier(.25,.9,.25,1), translate .45s cubic-bezier(.25,.9,.25,1);
+    scale: .86; translate: 0 -8px; }
+  .thread { position: fixed; z-index: 49; height: 1.5px; transform-origin: 0 50%; pointer-events: none; border-radius: 1px;
+    background: linear-gradient(90deg, rgba(240,230,216,0), rgba(240,230,216,.67) 40%, #D97757);
+    box-shadow: 0 0 6px rgba(217,119,87,.8); opacity: 0; transition: opacity .3s ease; }
+  .thread.on { opacity: 1; }
+  .says.on { opacity: 1; scale: 1; translate: 0 0; }
+  .says b { color: #D97757; font-weight: 600; display: block; margin-bottom: 2px; }
+  .twins figcaption { color: var(--ink-3); font-size: 12.5px; }
+  .norn .pair figure { margin: 0; max-width: 340px; }
+  .norn .pair img { width: 100%; height: auto; display: block; }
+  .norn ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 16px 28px; }
+  @media (max-width: 640px) { .norn ul { grid-template-columns: 1fr; } }
+  .norn li b { display: block; color: var(--ink); font-weight: 600; }
+  .norn li { color: var(--ink-2); font-size: 14.5px; line-height: 1.45; }
+  @media (max-width: 640px) { .norn { grid-template-columns: 1fr; } }
   h1 { font-size: 34px; letter-spacing: -.02em; margin: 0 0 8px; }
   .tag { color: var(--ink-2); font-size: 16px; margin: 0 auto; max-width: 30em; }
 
@@ -78,12 +129,19 @@
                     display: flex; align-items: center; gap: 12px; }
   .menubar .right svg { display: block; opacity: .92; }
   /* our own status item: the mark, then the reading */
-  .menubar .ours { display: flex; align-items: center; gap: 4px; font-variant-numeric: tabular-nums; }
+  .menubar .ours { display: flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
   .menubar .ours svg { display: block; }
-  /* The menu-bar mark: the app's own frames (mark-working@2x.png, one 24 pt
-     slot per frame, rendered by BallMark + BallMotion), not a redrawing. */
-  .menubar .barmark { width: 24px; height: 24px; margin: -5px -4px -5px 0; flex: none;
-    background: url(mark-working@2x.png?v=3.2.0) 0 0 / 3312px 24px no-repeat; }
+  /* The menu-bar mark: the same still of the app's shader as the Norn above, in the shell the switch picks. */
+  .menubar .barmark { width: 24px; height: 24px; margin: -5px -1px -5px 0; flex: none; position: relative; }
+  .menubar .barmark img { position: absolute; left: 50%; top: 50%; width: 34px; height: 34px; max-width: none;
+    transform: translate(-50%, -50%); display: block; }
+  .menubar .barmark .glow { opacity: 0; }
+  /* The working ring, as the app draws it while Claude works: a magenta arc chasing round her. */
+  .menubar .barmark .ring { position: absolute; inset: 0; border-radius: 50%; opacity: 0; pointer-events: none;
+    background: conic-gradient(from 0deg, rgba(236,72,150,0) 0deg, rgba(236,72,150,.2) 120deg, #EC4896 300deg, #F8B7D3 340deg, rgba(236,72,150,0) 360deg);
+    -webkit-mask: radial-gradient(circle, transparent 9.2px, #000 9.8px, #000 11.6px, transparent 12.2px);
+            mask: radial-gradient(circle, transparent 9.2px, #000 9.8px, #000 11.6px, transparent 12.2px);
+    filter: drop-shadow(0 0 2px rgba(236,72,150,.9)); }
   .menubar .clock { font-variant-numeric: tabular-nums; }
   /* the desktop below the bar, just enough to read as a screen */
   .screen .desktop { height: 44px; }
@@ -95,7 +153,7 @@
 
   /* ---- buttons ---- */
   /* The way in for newcomers: right under the download, as loud as the second button. */
-  .guide-link { display: flex; align-items: center; gap: 14px; max-width: 540px; margin: 26px auto 0; padding: 12px 14px 12px 12px;
+  .guide-link { display: flex; align-items: center; gap: 14px; max-width: 540px; margin: 26px auto 0; padding: 12px 14px 12px 20px;
     border-radius: 18px; text-decoration: none; color: var(--ink); text-align: left;
     background: rgba(58,23,41,.55); box-shadow: inset 0 0 0 1px rgba(226,80,146,.45); transition: background .15s ease, box-shadow .15s ease; }
   .guide-link:hover { background: rgba(58,23,41,.8); box-shadow: inset 0 0 0 1px var(--magenta), 0 0 22px rgba(168,22,88,.45); }
@@ -246,14 +304,16 @@
 <div class="wrap">
 
 <header>
-  <!-- The app's real icon, as the binary renders it into the bundle's iconset
-       (scripts/make-icon.sh). Not a recreation, and it does not move. -->
-  <img class="mark" src="icon@2x.png?v=3.2.0" width="512" height="512"
-       alt="Norn" fetchpriority="high">
+  <!-- The Norn herself: stills of the app's own shader ball (SPENDBAR_BALL_STILL), resting and with her
+       runes lit. The same ball that comes down from the menu bar. -->
+  <div class="drop"><div class="orb" role="img" aria-label="The Norn: black glass, a clay die and a ring of runes">
+    <img src="ball@2x.png?v=4.0.0" width="1140" height="1140" alt="" fetchpriority="high">
+    <img class="lit" src="ball-lit@2x.png?v=4.0.0" width="1140" height="1140" alt="">
+  </div></div>
 
   <h1>Norn</h1>
-  <p class="tag">Your claude.ai usage, in the menu bar. How much of your session
-     and weekly limits you have left, without opening a browser tab.</p>
+  <p class="tag">Your Claude usage, always in view. The Norn keeps watch over
+     your threads and your context, and speaks up only when it matters.</p>
 
   <!-- Where the app actually lives: the right-hand end of your Mac's menu bar,
        to the left of the clock, whatever app you happen to be in. -->
@@ -296,7 +356,7 @@
 
           <!-- this app. It sits here, just left of the clock. -->
           <span class="ours">
-            <span id="barMark" class="barmark"></span>
+            <span id="barMark" class="barmark"><img data-shell src="ball@2x.png?v=4.0.0" width="1140" height="1140" alt=""><img class="glow" src="ball-lit@2x.png?v=4.0.0" width="1140" height="1140" alt=""><i class="ring"></i></span>
             <span>38%</span>
           </span>
 
@@ -305,7 +365,7 @@
       </div>
       <div class="desktop"></div>
     </div>
-    <p class="barcap">That is the whole app: the ball and a percentage, just
+    <p class="barcap">That is the whole app: the Norn and a percentage, just
        left of the clock. <b>Click it for the rest.</b></p>
   </div>
 
@@ -316,18 +376,39 @@
     </a>
     <a class="btn btn-ghost" href="#homebrew">Install with Homebrew</a>
   </p>
-  <p class="meta">Version 3.2.0 · macOS 14 or later · Apple Silicon · free</p>
+  <p class="meta">Version 4.0.0 · macOS 14 or later · Apple Silicon · free</p>
   <a class="guide-link" href="guide.html">
-    <img src="icon-128.png?v=3.2.0" width="128" height="128" alt="">
     <span><b>First time setting it up?</b>
       <span>The setup guide walks you through it with the real screens, in five minutes.</span></span>
     <span class="go">Open the guide</span>
   </a>
   <nav class="map" aria-label="On this page">
-    <a href="#look">What you get</a><a href="#sessions">Sessions</a><a href="#menubar">Menu bar</a>
+    <a href="#norn">The Norn</a><a href="#look">What you get</a><a href="#sessions">Sessions</a><a href="#menubar">Menu bar</a>
     <a href="#install">Installing</a><a href="#connect">Connecting</a><a href="#yours">Make it yours</a>
   </nav>
 </header>
+
+<section class="reveal" id="norn">
+  <h2>She comes to you</h2>
+  <p class="lede">The Norn is a proactive helper. She watches your Claude sessions in the background and warns you before a problem costs you: a bloated context, a thread left waiting, a limit about to run out. You don't have to check. She comes down from the menu bar and tells you.</p>
+  <div class="twins">
+    <figure><img src="ball@2x.png?v=4.0.0" width="1140" height="1140" loading="lazy" alt="The Norn">
+      <div class="shell" role="radiogroup" aria-label="Appearance">
+        <button role="radio" aria-checked="true" data-src="ball@2x.png?v=4.0.0">Onyx</button>
+        <button role="radio" aria-checked="false" data-src="ball-pearl@2x.png?v=4.0.0">Pearl</button>
+      </div></figure>
+    <link rel="preload" as="image" href="ball-pearl@2x.png?v=4.0.0">
+  </div>
+  <div class="norn">
+    <ul>
+      <li><b>A thread is getting heavy</b>She warns you when a session's context passes 300k, before it costs you quality and money.</li>
+      <li><b>Claude is waiting on you</b>A question was asked, or a long turn finished while you were elsewhere.</li>
+      <li><b>A limit draws near</b>At 25, 50, 75 and 90% of the week, and when your session limit renews.</li>
+      <li><b>Ask her your fate</b>She is a Norn, after all. Press and hold her, ask your question, and her runes kindle. She answers yes, no, or that even she cannot say.</li>
+      <li><b>All of it is yours to set</b>Choose what she warns you about and when, in Settings. Or let her sleep, and Norn only keeps count.</li>
+    </ul>
+  </div>
+</section>
 
 <section class="reveal" id="look">
   <h2>What you get when you click it</h2>
@@ -336,7 +417,7 @@
   <div class="shots">
     <div class="shot">
       <figure>
-        <span class="frame"><img src="popover@2x.png?v=3.2.0" width="680" height="1092" loading="lazy"
+        <span class="frame"><img src="popover@2x.png?v=4.0.0" width="680" height="1092" loading="lazy"
              alt="The panel on a subscription: an organisation picker, then Session 54%,
                   Weekly 28% and Weekly Fable 30%, each with a meter and a reset time,
                   then the Sessions list at API value."></span>
@@ -347,7 +428,7 @@
     </div>
     <div class="shot">
       <figure>
-        <span class="frame"><img src="ledger@2x.png?v=3.2.0" width="680" height="1440" loading="lazy"
+        <span class="frame"><img src="ledger@2x.png?v=4.0.0" width="680" height="1440" loading="lazy"
              alt="The panel on a spend limit: $189.42 of $300, $110.58 left this cycle,
                   63% used, a tape of the five most recent charges, and the Sessions list."></span>
         <figcaption><b>On a spend limit.</b> What you have run up this cycle, what
@@ -364,7 +445,7 @@
   <div class="sessions">
     <div class="shot">
       <figure>
-        <span class="frame"><img src="sessions@2x.png?v=3.2.0" width="680" height="1212" loading="lazy"
+        <span class="frame"><img src="sessions@2x.png?v=4.0.0" width="680" height="1212" loading="lazy"
              alt="The Sessions list with Desktop off, sorted by cost: two terminal sessions,
                   two headless runs, a CLI total, and the part of the bill no session explains."></span>
         <figcaption><b>Desktop off, sorted by cost.</b> The total follows the
@@ -391,7 +472,7 @@
   <div class="sessions">
     <div class="shot">
       <figure>
-        <span class="frame"><img src="menubar@2x.png?v=3.2.0" width="680" height="554" loading="lazy"
+        <span class="frame"><img src="menubar@2x.png?v=4.0.0" width="680" height="554" loading="lazy"
              alt="The Menu bar text screen: Full $189.42 / $300 (today's look, 119 pt),
                   Compact $189 / 300 (91 pt), Minimal $189 (57 pt) and Mark, the mark alone (24 pt)."></span>
         <figcaption><b>Four styles, measured.</b> Each row shows your own reading in
@@ -461,7 +542,7 @@
   </div>
 
   <p class="note" style="margin-top:18px">Nothing appears in the Dock — look for
-     the ball in the menu bar, at the top right of your screen. The app
+     the Norn in the menu bar, at the top right of your screen. The app
      adds itself to your login items the first time it runs, so it is there after
      a restart. You can turn that off in its settings.</p>
 </details>
@@ -474,7 +555,7 @@
      already knows your plan and limits. It never asks for, stores or sends a login.</p>
   <div class="shot" style="max-width:340px;margin:0 auto 22px">
     <figure>
-      <span class="frame"><img src="connect@2x.png?v=3.2.0" width="680" height="836" loading="lazy"
+      <span class="frame"><img src="connect@2x.png?v=4.0.0" width="680" height="836" loading="lazy"
            alt="The Connect screen: Norn runs your claude to ask for usage, found two
                 accounts, never reads, stores or sends a login, and never talks to claude.ai."></span>
     </figure>
@@ -483,7 +564,7 @@
     <li>Install the <a href="https://code.claude.com/docs/en/setup">Claude Code CLI</a>,
         or the <a href="https://claude.ai/download">Claude app</a>, which carries its own copy.</li>
     <li>Sign in to Claude Code once, in Terminal: <code>claude auth login</code>.</li>
-    <li>Click the ball in the menu bar and press <b>Connect</b>.</li>
+    <li>Click the Norn in the menu bar and press <b>Connect</b>.</li>
   </ol>
   <p class="note">New to Claude Code or Terminal? The <a href="guide.html">setup guide</a>
      walks through every step with the real screens.</p>
@@ -501,7 +582,7 @@
   <div class="shots shots-3">
     <div class="shot">
       <figure>
-        <span class="frame"><img src="appearance@2x.png?v=3.2.0" width="680" height="716" loading="lazy"
+        <span class="frame"><img src="appearance@2x.png?v=4.0.0" width="680" height="716" loading="lazy"
              alt="Appearance settings: Theme Auto, Dark or Light; Panel motion Slide, Unfurl or Fade;
                   Menu bar mark Ball with Ring; Menu bar text; Context gauge."></span>
         <figcaption><b>Appearance.</b> Dark or light (Pearl) panel, or follow macOS,
@@ -510,15 +591,15 @@
     </div>
     <div class="shot">
       <figure>
-        <span class="frame"><img src="mark-ball@2x.png?v=3.2.0" width="680" height="798" loading="lazy"
+        <span class="frame"><img src="mark-ball@2x.png?v=4.0.0" width="680" height="798" loading="lazy"
              alt="Menu bar mark: Ball chosen. While Claude works: Ring, Pulse, Die only or Off."></span>
-        <figcaption><b>The ball.</b> While Claude Code works its die turns: with a
+        <figcaption><b>The Norn.</b> While Claude Code works its die turns: with a
           magenta ring, a pulsing glow, on its own, or not at all.</figcaption>
       </figure>
     </div>
     <div class="shot">
       <figure>
-        <span class="frame"><img src="mark-trine@2x.png?v=3.2.0" width="680" height="888" loading="lazy"
+        <span class="frame"><img src="mark-trine@2x.png?v=4.0.0" width="680" height="888" loading="lazy"
              alt="Menu bar mark: Trine chosen. While Claude works: Chase, Draw, Tumble, Turn or Off."></span>
         <figcaption><b>The Trine.</b> A plain clay triangle for a quieter bar, with
           five ways to move. <i>Off</i> keeps either still and saves battery.</figcaption>
@@ -557,6 +638,203 @@
 </div>
 
 <script>
+  // One Norn, two shells: Onyx by default, Pearl on the switch.
+  (function () {
+    var img = document.querySelector('.twins img');
+    document.querySelectorAll('.shell button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        document.querySelectorAll('.shell button').forEach(function (o) { o.setAttribute('aria-checked', o === b); });
+        img.style.opacity = 0;
+        setTimeout(function () {
+          img.src = b.dataset.src;
+          if (window.nornFace) window.nornFace(b.dataset.src);
+          document.querySelectorAll('img[data-shell]').forEach(function (i) { i.src = b.dataset.src; });
+          img.style.opacity = '';
+        }, 180);
+        try { localStorage.setItem('norn-shell', /pearl/.test(b.dataset.src) ? 'pearl' : 'onyx'); } catch (e) {}
+      });
+    });
+    // Remember the pick between visits and carry it to the guide.
+    setTimeout(function () {
+      try { if (localStorage.getItem('norn-shell') === 'pearl') document.querySelectorAll('.shell button')[1].click(); } catch (e) {}
+    }, 0);
+  })();
+
+  // The Norn moves as she does in the app (DropTuning, BallDrop+Motion): an overdamped spring (stiffness 7
+  // over a 2 s fall), one whole turn, a flutter (5 pt, 7 a second, dying over 1.2 s), a rock (0.26 rad,
+  // 1.15 Hz, damping 2.6), then a hover: sway ±6 pt every 4 s, float 15 pt every 8 s.
+  (function () {
+    var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var TAU = Math.PI * 2, W = 3.5;                         // 7 over a 2 s fall
+    function settle(t) { var k = 7; return (1 - (1 + k * t) * Math.exp(-k * t)) / (1 - 8 * Math.exp(-7)); }
+    function flutter(t) { return t < 0 || t > 1.2 ? 0 : 5 * Math.exp(-3 * t) * Math.sin(TAU * 7 * t); }
+    function rock(t) { return t < 0 || t > 1.9 ? 0 : -0.26 * Math.exp(-2.6 * t) * Math.sin(TAU * 1.15 * t); }
+    function hover(t, k) {                                     // k scales the reach to the ball's size
+      return { x: 6 * k * Math.sin(TAU * t / 4), y: 15 * k * (Math.cos(TAU * t / 8) * 0.5 - 1 / 6) };
+    }
+
+    // One Norn on the whole page. She falls from the top into the hero's place, and from there moves
+    // between her places as you scroll: the hero, "She comes to you", and a dock at the column's left
+    // edge everywhere else. Each place sets her size. The places keep their layout but show nothing.
+    var spots = [document.querySelector('.orb'), document.querySelector('.twins img')];
+    var heroLit = document.querySelector('.orb .lit');
+    var f = document.createElement('div'); f.className = 'follower';
+    var face = new Image(); face.src = spots[1].getAttribute('src'); face.alt = '';
+    var lit = new Image(); lit.src = heroLit.getAttribute('src'); lit.alt = ''; lit.className = 'kindle';
+    f.appendChild(face); f.appendChild(lit); document.body.appendChild(f);
+    f.style.pointerEvents = 'auto'; f.style.cursor = 'pointer'; f.style.touchAction = 'manipulation';
+
+    // Touch her, as in the app (BallDrop+GentleTap, +Prophecy). A tap gets one of her small answers;
+    // a hold heats her until she glows, and letting go hot gets a yes, a no, or an "I don't know".
+    var TAPS = {
+      nod: { y: [[0, 0], [.35, -4], [.7, 1], [1, 0]], len: .52 },
+      floatUp: { y: [[0, 0], [.4, -5], [1, 0]], len: .85 },
+      turn: { a: [[0, 0], [.45, -12], [1, 0]], len: .9 },
+      breath: { sc: [[0, 0], [.4, .04], [1, 0]], len: .7 },
+      beat: { sc: [[0, 0], [.15, .035], [.35, 0], [.5, .02], [.75, 0], [1, 0]], len: .7 },
+      drift: { x: [[0, 0], [.35, 4], [.7, -1.5], [1, 0]], len: 1 }
+    };
+    var ANSWERS = {
+      yes: ['Yes. I have seen it', 'Yes. It has held before', 'Yes. The thread holds', 'Yes. Ship it, then',
+            'Yes. It is already done', 'Yes, and soon', 'Yes. I would not wait', 'Yes. The well is clear'],
+      no: ['No. I remember why', 'No. Not this turn', 'No. It frayed last time', 'No. Let it rest',
+           'No. Wait until it renews', 'No. That is spent', 'No. Twice was enough', 'No, and you know it'],
+      unknown: ["I don't know. Ask again", "I can't say. Not yet", "I can't say. It's murky", "I don't know this one",
+                'Unsure. Let me cool', 'I have not seen this', 'It could go either way', 'Unknown, even to me']
+    };
+    var flash = -1e9, tap = null, holding = false, holdAt = 0, heat = 0, answer = null, lastLine = '';
+    function key(track, u) {
+      if (!track) return 0;
+      for (var i = 1; i < track.length; i++) if (u <= track[i][0]) {
+        var a = track[i - 1], b = track[i], q = (u - a[0]) / (b[0] - a[0]); q = q * q * (3 - 2 * q);
+        return a[1] + (b[1] - a[1]) * q;
+      }
+      return 0;
+    }
+    function tapOffset(now) {
+      if (!tap) return { x: 0, y: 0, a: 0, sc: 0 };
+      var u = (now - tap.at) / 1000 / tap.k.len; if (u >= 1) { tap = null; return { x: 0, y: 0, a: 0, sc: 0 }; }
+      return { x: key(tap.k.x, u), y: key(tap.k.y, u), a: key(tap.k.a, u) * Math.PI / 180, sc: key(tap.k.sc, u) };
+    }
+    function ask() {
+      var roll = Math.floor(Math.random() * 8), v = roll < 3 ? 'yes' : roll < 6 ? 'no' : 'unknown';
+      var lines = ANSWERS[v].filter(function (l) { return l !== lastLine; });
+      lastLine = lines[Math.floor(Math.random() * lines.length)];
+      return { v: v, line: lastLine };
+    }
+    f.addEventListener('pointerdown', function (e) {
+      e.preventDefault(); holding = true; holdAt = performance.now();
+      try { f.setPointerCapture(e.pointerId); } catch (x) {}
+    });
+    function release() {
+      if (!holding) return; holding = false;
+      var now = performance.now();
+      if (heat >= 1) { var a2 = ask(); answer = { v: a2.v, line: a2.line, at: now + 300, until: now + 4300 }; }
+      else { var names = Object.keys(TAPS); tap = { k: TAPS[names[Math.floor(Math.random() * names.length)]], at: now }; flash = now; }
+    }
+    f.addEventListener('pointerup', release); f.addEventListener('pointercancel', release);
+    function litOf(src) { return /pearl/.test(src) ? 'ball-pearl-lit@2x.png?v=4.0.0' : 'ball-lit@2x.png?v=4.0.0'; }
+    window.nornFace = function (src) { face.src = src; lit.src = litOf(src);
+      var g = document.querySelector('#barMark .glow'); if (g) g.src = litOf(src); };
+    document.querySelectorAll('.orb img, .twins img').forEach(function (i) { i.style.visibility = 'hidden'; });
+    document.querySelector('.drop').style.opacity = 1;
+
+    function rect(el) { var r = el.getBoundingClientRect(); return { x: r.left, y: r.top + scrollY, s: r.width, top: r.top, bottom: r.bottom }; }
+    function dock() {
+      var w = document.querySelector('.wrap').getBoundingClientRect(), narrow = innerWidth < 900, s = narrow ? 96 : 200;
+      return narrow ? { x: 4, y: scrollY + innerHeight - s - 4, s: s } : { x: Math.max(4, w.left - s - 8), y: scrollY + 40, s: s };
+    }
+    function shown(r) { return r.bottom > 140 && r.top < innerHeight - 100; }
+    var mode = '', goal = null, last = 0, landed = -1, born = performance.now();
+    var h0 = rect(spots[0]);
+    var p = { x: h0.x + h0.s * 0.35, y: scrollY - 0.38 * innerHeight + h0.y - scrollY, s: h0.s * 0.3, a: 0 }, v = { x: 0, y: 0, s: 0, a: 0 };
+    // What she says about each part of the page as you scroll through it, in her voice.
+    var LINES = {
+      look: ['The panel', 'Click me in the menu bar and this opens: your limits, or your spend, and when each resets.'],
+      sessions: ['Your sessions', 'I price every Claude Code session on this Mac, and dot the ones working right now.'],
+      menubar: ['My place', 'I live up there by the clock. Show a figure beside me, or just me.'],
+      install: ['Getting me', 'A disk image, or one line of Homebrew. I update myself after that.'],
+      connect: ['Connecting', 'I use your own Claude Code and its sign-in. I never see a password.'],
+      yours: ['Your settings', 'What I warn you about, and when, is yours to set. Or let me sleep.']
+    };
+    var says = document.createElement('div'); says.className = 'says'; document.body.appendChild(says);
+    var thread = document.createElement('div'); thread.className = 'thread'; document.body.appendChild(thread);
+    var saying = '';
+    // As in the app: any move folds her words; she speaks again only once she has been still for 1.5 s.
+    var stillSince = -1;
+    function words(x, y, size, since, now) {
+      var moving = mode !== 'dock' || Math.abs(v.x) + Math.abs(v.y) > 25 || Math.hypot(p.x - goal.x, p.y - goal.y) > 12;
+      if (moving) stillSince = -1; else if (stillSince < 0) stillSince = now;
+      var at = '';
+      if (answer && now < answer.until) {
+        if (now >= answer.at && saying !== 'answer') {
+          saying = 'answer'; says.innerHTML = '<b>' + (answer.v === 'yes' ? 'Yes' : answer.v === 'no' ? 'No' : 'Unknown') + '</b>' + answer.line; says.classList.add('on');
+        }
+        at = 'answer';
+      } else if (stillSince > 0 && now - stillSince > 1500) Object.keys(LINES).forEach(function (id) {
+        var el = document.getElementById(id); if (!el) return;
+        var r = el.getBoundingClientRect(); if (r.top < innerHeight * 0.6 && r.bottom > 0) at = id;
+      });
+      if (at !== saying && at !== 'answer') {
+        saying = at; says.classList.remove('on');
+        if (at) setTimeout(function () { if (saying === at) {
+          says.innerHTML = '<b>' + LINES[at][0] + '</b>' + LINES[at][1]; says.classList.add('on'); } }, 260);
+      }
+      var body = size / 1.9, narrow = innerWidth < 900;
+      var left = narrow ? Math.min(innerWidth - 228, x + size / 2 + body / 2 - 8) : x + size / 2 - 110;
+      var top = narrow ? y + size / 2 - 40 : y + size / 2 + body / 2 + 34;
+      left = Math.max(8, left); says.style.left = left + 'px'; says.style.top = top + 'px';
+      // From her rim to the pane's near edge.
+      var cx = x + size / 2, cy = y + size / 2, ex, ey;
+      if (narrow) { ex = left; ey = top + 22; } else { ex = left + 110; ey = top; }
+      var dx = ex - cx, dy = ey - cy, len = Math.hypot(dx, dy) || 1, rim = body / 2 + 2;
+      thread.style.left = cx + dx / len * rim + 'px'; thread.style.top = cy + dy / len * rim + 'px';
+      thread.style.width = Math.max(0, len - rim) + 'px';
+      thread.style.transform = 'rotate(' + Math.atan2(dy, dx) + 'rad)';
+      thread.classList.toggle('on', says.classList.contains('on'));
+    }
+    function pick() {
+      var hero = rect(spots[0]), twin = rect(spots[1]);
+      if (shown(hero)) return ['hero', hero];
+      if (shown(twin)) return ['twins', twin];
+      return ['dock', dock()];
+    }
+    function step(now) {
+      var dt = Math.min(0.25, (now - last) / 1000 || 0); last = now;
+      var pk = pick();
+      if (pk[0] !== mode) { mode = pk[0]; landed = -1; v.a = 0; p.a += (mode === 'dock' ? 1 : -1) * TAU; }
+      goal = pk[1];
+      ['x', 'y', 's', 'a'].forEach(function (k) {
+        var g = k === 'a' ? 0 : goal[k];
+        if (reduce) { p[k] = g; return; }
+        for (var n = Math.ceil(dt * 240), h = dt / Math.max(1, n), i = 0; i < n; i++) {
+          v[k] += (-W * W * (p[k] - g) - 2 * W * v[k]) * h; p[k] += v[k] * h;
+        }
+      });
+      var dist = Math.hypot(p.x - goal.x, p.y - goal.y) + Math.abs(p.s - goal.s);
+      if (landed < 0 && dist < 12 && Math.abs(p.a) < 0.5) landed = now;
+      var since = landed < 0 ? -1 : (now - landed) / 1000, k = p.s / 240;
+      var amt = reduce ? 0 : since > 0.8 ? Math.min(1, (since - 0.8) / 1.5) : 0;
+      var hv = hover((now - born) / 1000, amt * k * 1.2);
+      heat = holding ? Math.min(1, (now - holdAt) / 1400) : Math.max(0, heat - dt * 1.5);
+      var to = tapOffset(now), shake = heat > .2 ? Math.sin(now * .09) * heat * 1.6 * k : 0;
+      var x = p.x + (reduce ? 0 : flutter(since) * k) + hv.x + (to.x * k * 1.6) + shake, y = p.y - scrollY + hv.y + to.y * k * 1.6;
+      f.style.width = f.style.height = p.s + 'px';
+      f.style.transform = 'translate(' + x + 'px,' + y + 'px) rotate(' + (p.a + to.a + (reduce ? 0 : rock(since))) + 'rad) scale(' + (1 + to.sc - heat * .04) + ')';
+      var ft = (now - flash) / 1000, glowUp = ft < 0 ? 0 : ft < .12 ? ft / .12 : ft < .35 ? 1 : Math.max(0, 1 - (ft - .35) / .9);
+      var shine = Math.max(heat, glowUp);                  // a tap lights her runes for a moment, as in the app
+      lit.style.opacity = shine > 0 ? shine : '';
+      lit.style.animation = shine > 0 ? 'none' : '';      // a running CSS animation would override the inline opacity
+      f.style.filter = heat > 0 ? 'drop-shadow(0 0 ' + (heat * 26 * k) + 'px rgba(226,80,146,' + (heat * .8) + ')) brightness(' + (1 + heat * .15) + ')' : '';
+      var verdict = answer && now < answer.until && now >= answer.at ? answer.v : '';
+      face.style.filter = verdict === 'no' ? 'brightness(.75) saturate(.7)' : verdict === 'yes' ? 'brightness(1.12) saturate(1.2)' : '';
+      f.style.opacity = Math.min(1, (now - born) / 350);
+      words(x, y, p.s, since, now);
+      requestAnimationFrame(step);
+    }
+    requestAnimationFrame(function (n) { last = n; step(n); });
+  })();
+
   // A link to Installing, Connecting or the Homebrew steps opens the fold first.
   function openFold() {
     var target = location.hash && document.querySelector(location.hash);
@@ -605,20 +883,27 @@
     document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
   }
 
-  // The menu-bar mark plays the app's own frames: mark-working@2x.png is
-  // BallMotion stepped at 30 fps and drawn by BallMark: frame 0 at rest, then
-  // a session starting, 3.2 s of work, and the die landing pointing down.
+  // The bar mark works as in the app: at rest, then a session starts and she turns (speeding up,
+  // her runes lit), then slows and lands die-down with a small rock, and rests again.
   (function () {
-    var mark = document.getElementById('barMark');
-    var FRAMES = 138, FPS = 30, PAUSE_MS = 2200, SLOT = 24;
-    function show(n) { mark.style.backgroundPosition = (-n * SLOT) + 'px 0'; }
-    show(0);
-    if (reduce) return;                        // at rest, and no frames
-    var cycle = PAUSE_MS + (FRAMES - 1) * 1000 / FPS, start = 0;
+    var mark = document.getElementById('barMark'), imgs = mark.querySelectorAll('img'), glow = mark.querySelector('.glow'), ring = mark.querySelector('.ring');
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var REST = 2200, WORK = 3200, LAND = 900, cycle = REST + WORK + LAND, start = 0;
     function frame(now) {
       if (!start) start = now;
-      var t = (now - start) % cycle;
-      show(t < PAUSE_MS ? 0 : 1 + Math.min(FRAMES - 2, Math.floor((t - PAUSE_MS) * FPS / 1000)));
+      var t = (now - start) % cycle, a = 0, lit = 0;
+      if (t > REST && t < REST + WORK) {
+        var u = (t - REST) / WORK;                         // ease in, cruise, ease out: three whole turns
+        a = 1080 * (u * u * (3 - 2 * u));
+        lit = Math.min(1, Math.min(u, 1 - u) * 6);
+      } else if (t >= REST + WORK) {
+        var l = (t - REST - WORK) / 1000;
+        a = -14 * Math.exp(-4 * l) * Math.sin(2 * Math.PI * 1.6 * l);
+      }
+      imgs.forEach(function (i) { i.style.transform = 'translate(-50%, -50%) rotate(' + a + 'deg)'; });
+      glow.style.opacity = lit;
+      ring.style.opacity = lit;
+      ring.style.transform = 'rotate(' + (now * .36) + 'deg)';
       requestAnimationFrame(frame);
     }
     requestAnimationFrame(frame);
