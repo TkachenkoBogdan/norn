@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The cache · Learn · Norn</title>
+<meta name="description" content="What Claude's prompt cache is, why a miss on a big context costs real money, and how to keep it warm.">
+<meta property="og:title" content="The cache, and why a miss costs real money">
+<meta property="og:description" content="Every turn sends the whole conversation again. The cache is what makes that cheap, and it only lasts an hour.">
+<meta property="og:url" content="https://tkachenkobogdan.github.io/norn/learn/cache.html">
+<link rel="icon" href="../icon-128.png?v=4.1.0" sizes="128x128">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="page">
+  <div class="top">
+    <img src="../icon-128.png?v=4.1.0" width="40" height="40" alt="">
+    <div><h1>Learn</h1><p>Lesson 1 of 3</p></div>
+    <nav><a href="./">All lessons</a><a href="../">About Norn</a></nav>
+  </div>
+
+  <p class="eyebrow">The cache</p>
+  <h2>Why a cache miss costs real money</h2>
+  <p class="lede">Claude has no memory between turns. Every time you send a message, Claude Code sends the <b>whole conversation</b> again: the system prompt, every file it read, every reply it wrote. On a long thread that is hundreds of thousands of tokens, each turn.</p>
+
+  <h3>What the cache is</h3>
+  <p>The API keeps a copy of what it has just read. When the next request starts with the same text, it reads that copy instead of processing the text again. That read costs about <b>a tenth</b> of the normal price. The copy lives for a fixed time after its last use: <b>one hour</b> for Claude Code today (older versions used five minutes). Touch it in time and the clock restarts. Let it lapse, and it is gone.</p>
+  <p>Two things to hold on to:</p>
+  <ul>
+    <li>The cache works on the <b>beginning</b> of the conversation. It matches from the first word up to the first thing that changed. Change something early, and everything after it is new again.</li>
+    <li><b>Writing</b> to the cache costs more than a plain read, not less: twice the normal price for an hour-long copy. The saving comes from the reads that follow. A write that nobody reads back is pure cost.</li>
+  </ul>
+
+  <h3>What a miss is</h3>
+  <p>A miss is a turn where the copy could not be used, so the whole context is processed, and written, again. It happens when:</p>
+  <ul>
+    <li>The thread was <b>quiet past the hour</b>. You stepped away, came back after lunch, typed one line, and paid for the whole thread. This is the common one.</li>
+    <li>The thread <b>switched model</b>. Each model keeps its own cache. Opus cannot read what Sonnet wrote.</li>
+    <li>The thread <b>compacted</b>. The folded summary is new text; nothing before it matches any more.</li>
+    <li>Something <b>early in the conversation changed</b>: an edited system prompt, a different set of tools, a Claude Code update.</li>
+  </ul>
+
+  <h3>Why it matters more the bigger the thread</h3>
+  <p>A miss costs the write price on <em>everything</em> in the context, not on the one line you typed. On a 5k thread you would never notice. On a 250k thread it is the price of a lunch.</p>
+  <table>
+    <tr><th>Context</th><th>Read from cache</th><th>Miss (written again)</th><th>Miss, Fable 5.2</th></tr>
+    <tr><td>50k tokens</td><td>$0.01</td><td><b>$0.40</b></td><td>$0.80</td></tr>
+    <tr><td>100k</td><td>$0.02</td><td><b>$0.80</b></td><td>$1.60</td></tr>
+    <tr><td>250k</td><td>$0.05</td><td><b>$2.00</b></td><td>$4.00</td></tr>
+    <tr><td>500k</td><td>$0.10</td><td><b>$4.00</b></td><td>$8.00</td></tr>
+  </table>
+  <p>Opus 5.5 prices, one-hour cache, from Anthropic's published rates. On a subscription you do not see dollars, but the same work counts against your session and weekly limits, so a miss on a big thread eats your week just the same.</p>
+
+  <h3>What to do</h3>
+  <ul>
+    <li><b>Finish, or let it go.</b> If you will not be back within the hour, the thread is cold anyway. Coming back to a big one costs its whole weight; a fresh thread for the new task is often cheaper.</li>
+    <li><b>One turn keeps it warm.</b> A short message before the hour is up restarts the clock for the whole context. Norn tells you when a big one is about to expire.</li>
+    <li><b>Don't switch models mid-thread</b> unless the switch is worth re-reading everything.</li>
+    <li><b>Compact on purpose</b>, at a natural break, not in the middle of a task you will keep touching.</li>
+    <li><b>Keep the beginning stable.</b> Project instructions and tools go first and stay put; what changes goes last.</li>
+  </ul>
+
+  <div class="norn-says">
+    <h3>What Norn tells you</h3>
+    <p>Both lines are switches in <b>Settings › Interactions › More she can say</b>, with a dollar floor so small threads stay quiet. They only speak of threads that are still open.</p>
+    <div class="bubble"><b>Cache going cold</b><p>“Mindhook” has 237k of context in the cache; it expires in 4 min. One turn now keeps it. The next after that sends it all again, for $1.90.</p></div>
+    <div class="bubble"><b>Cache missed</b><p>“Mindhook” was quiet 12 h; the cache lasts 1 h. Its first turn back sent all 237k of context again, for $1.90. A turn within the hour would have kept it.</p></div>
+    <p>Yesterday's digest adds the day's cache-hit share when it was low, so a week of cold starts shows up as a number, not a feeling.</p>
+  </div>
+
+  <footer><a href="./">All lessons</a><a href="../">Norn</a> Not affiliated with Anthropic. Prices change; check Anthropic's pricing page for today's.</footer>
+</div>
+</body>
+</html>
